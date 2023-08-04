@@ -34,17 +34,24 @@ public class CharacterAim : MonoBehaviour
     {
         Ray rayPosition = cam.ScreenPointToRay(Input.mousePosition);
 
-        if (Physics.Raycast(rayPosition, out var hitInfo, Mathf.Infinity, whatIsGround))
+        if (Input.GetMouseButtonDown(1)) // do the raycast and the checking only if the player wanna to move
         {
-            mousePosition = hitInfo.point;
-            direction = mousePosition - transform.position;
-            direction.y = 0f;
+            if (Physics.Raycast(rayPosition, out var hitInfo, Mathf.Infinity, whatIsGround))
+            {
 
-            starterAssetsInputs.SetCursorState(false);
-            debugSphere.position = mousePosition;
-            thirdPersonController.RotateOnAim(true);
+                mousePosition = hitInfo.point;
+                direction = mousePosition - transform.position;
+                direction.y = 0f;
 
-            transform.forward = Vector3.Lerp(transform.forward,direction,rotateSpeed * Time.deltaTime);
+                starterAssetsInputs.SetCursorState(false);
+                debugSphere.position = mousePosition;
+                thirdPersonController.RotateOnAim(true);
+
+
+                starterAssetsInputs.MoveInput(new Vector2(direction.x, direction.z), mousePosition); // pass the direction to the input and the player goal
+            }
         }
+        transform.forward = Vector3.Lerp(transform.forward, direction, rotateSpeed * Time.deltaTime);
+
     }
 }

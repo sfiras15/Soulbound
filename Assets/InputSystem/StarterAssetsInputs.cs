@@ -10,6 +10,7 @@ namespace StarterAssets
 		[Header("Character Input Values")]
 		public Vector2 move;
 		public Vector2 look;
+		public Vector3 goal;
 		public bool jump;
 		public bool sprint;
 
@@ -23,7 +24,7 @@ namespace StarterAssets
 #if ENABLE_INPUT_SYSTEM && STARTER_ASSETS_PACKAGES_CHECKED
 		public void OnMove(InputValue value)
 		{
-			MoveInput(value.Get<Vector2>());
+			//MoveInput(value.Get<Vector2>());
 		}
 
 		public void OnLook(InputValue value)
@@ -46,9 +47,10 @@ namespace StarterAssets
 #endif
 
 
-		public void MoveInput(Vector2 newMoveDirection)
+		public void MoveInput(Vector2 newMoveDirection,Vector3 goal)
 		{
 			move = newMoveDirection;
+			this.goal = goal;
 		} 
 
 		public void LookInput(Vector2 newLookDirection)

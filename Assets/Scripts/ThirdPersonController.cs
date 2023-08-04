@@ -168,6 +168,7 @@ namespace StarterAssets
             JumpAndGravity();
             GroundedCheck();
             Move();
+            Cursor.visible = true;
 
         }
 
@@ -202,7 +203,7 @@ namespace StarterAssets
 
         private void CameraRotation()
         {
-            // if there is an input and camera position is not fixed
+            //if there is an input and camera position is not fixed
             if (_input.look.sqrMagnitude >= _threshold && !LockCameraPosition)
             {
                 //Don't multiply mouse input by Time.deltaTime;
@@ -255,7 +256,7 @@ namespace StarterAssets
                 _speed = targetSpeed;
             }
 
-            _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+            
             if (_animationBlend < 0.01f) _animationBlend = 0f;
 
             // normalise input direction
@@ -263,34 +264,47 @@ namespace StarterAssets
 
             // note: Vector2's != operator uses approximation so is not floating point error prone, and is cheaper than magnitude
             // if there is a move input rotate player when the player is moving
-            if (_input.move != Vector2.zero)
-            {
-                _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
-                                  _mainCamera.transform.eulerAngles.y;
-                float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
-                    RotationSmoothTime);
+            //if (_input.move != Vector2.zero)
+            //{
+            //    _targetRotation = Mathf.Atan2(inputDirection.x, inputDirection.z) * Mathf.Rad2Deg +
+            //                      _mainCamera.transform.eulerAngles.y;
+            //    float rotation = Mathf.SmoothDampAngle(transform.eulerAngles.y, _targetRotation, ref _rotationVelocity,
+            //        RotationSmoothTime);
 
-                // rotate to face input direction relative to camera position
-                if (_isNotAiming)
-                {
-                    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
-                }
-            }
+            //    // rotate to face input direction relative to camera position
+            //    //if (_isNotAiming)
+            //    //{
+            //    //    transform.rotation = Quaternion.Euler(0.0f, rotation, 0.0f);
+            //    //}
+            //}
 
 
-            Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
+            //Vector3 targetDirection = Quaternion.Euler(0.0f, _targetRotation, 0.0f) * Vector3.forward;
 
             // move the player
-            _controller.Move(targetDirection.normalized * (_speed * Time.deltaTime) +
+            bool canMove = Vector3.Distance(transform.position, _input.goal) > 0.5f;
+            if (canMove)
+                _controller.Move(inputDirection.normalized * (_speed * Time.deltaTime) +
                              new Vector3(0.0f, _verticalVelocity, 0.0f) * Time.deltaTime);
          
 
             // update animator if using character
-            if (_hasAnimator)
+            if(!canMove)
+            {
+                if(_animationBlend>0)
+                    _animationBlend -=Time.deltaTime* SpeedChangeRate;
+                inputMagnitude = 0;
+            }
+            else
+                _animationBlend = Mathf.Lerp(_animationBlend, targetSpeed, Time.deltaTime * SpeedChangeRate);
+
+
+            if (_hasAnimator )
             {
                 _animator.SetFloat(_animIDSpeed, _animationBlend);
                 _animator.SetFloat(_animIDMotionSpeed, inputMagnitude);
             }
+
         }
 
         private void JumpAndGravity()
