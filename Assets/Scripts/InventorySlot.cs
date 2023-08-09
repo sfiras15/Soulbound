@@ -1,5 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -10,10 +11,18 @@ public class InventorySlot : MonoBehaviour
 {
     [SerializeField] private Image itemButtonIcon;
     [SerializeField] private Button exitButton;
-    Item item;
+    [SerializeField] private Item item;
+    [SerializeField] private TextMeshProUGUI instanceNumber;
+
+    private void Start()
+    {
+        instanceNumber.gameObject.SetActive(false);
+    }
     public void AddItem(Item newItem)
     {
         item = newItem;
+        instanceNumber.gameObject.SetActive(true);
+        instanceNumber.text = "x" + item.nbOfInstances.ToString();
         itemButtonIcon.sprite = newItem.itemIcon;
         itemButtonIcon.enabled = true;
         exitButton.interactable = true;
@@ -21,13 +30,15 @@ public class InventorySlot : MonoBehaviour
     public void ClearSlot()
     {
         item = null;
+        instanceNumber.gameObject.SetActive(false);
         itemButtonIcon.sprite = null;
         itemButtonIcon.enabled = false;
         exitButton.interactable = false;
     }
     public void RemoveFromInventory()
     {
-        Inventory.instance.RemoveItem(item.itemName);
+        if (item.nbOfInstances > 0) Inventory.instance.RemoveItem(item);
+        else ClearSlot();        
     }
     public void UseItem()
     {

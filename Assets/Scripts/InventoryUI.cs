@@ -7,8 +7,6 @@ using UnityEngine;
 
 public class InventoryUI : MonoBehaviour
 {
-    [SerializeField] private StarterAssetsInputs starterAssetsInputs;
-    [SerializeField] private ThirdPersonController thirdPersonController;
     [SerializeField] private KeyCode inventoryKey;
     [SerializeField] private GameObject inventoryUI;
     private void OnEnable()
@@ -21,33 +19,30 @@ public class InventoryUI : MonoBehaviour
     }
     private void Update()
     {
+
+        // fix a bug where the player can still attack while browsing the inventory
         if (Input.GetKeyDown(inventoryKey))
         {
             if (!inventoryUI.activeSelf)
             {
-                // unlock cursor / lock position via the scripts attached to the player
-                starterAssetsInputs.SetCursorState(false);
-                thirdPersonController.LockCameraPosition = true;
                 inventoryUI.SetActive(true);
                 UpdateUI();
             }
             else
             {
-                starterAssetsInputs.SetCursorState(true);
-                thirdPersonController.LockCameraPosition = false;
                 inventoryUI.SetActive(false);
             }
-            
         }
     }
+
     public void UpdateUI()
     {
         InventorySlot[] slots = GetComponentsInChildren<InventorySlot>();
         for (int i = 0; i < slots.Length; i++)
         {
-            if (i < Inventory.instance.items.Count)
+            if (i < Inventory.instance.inventoryDictionary.Count)
             {
-                slots[i].AddItem(Inventory.instance.items[i]);
+                slots[i].AddItem(Inventory.instance.inventoryDictionary[i]);
             }
             else
             {
