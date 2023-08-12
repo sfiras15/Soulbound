@@ -47,6 +47,7 @@ public class EnemyAi: MonoBehaviour
     {
         //Check for sight and attack range
         playerInSightRange = Physics.CheckSphere(transform.position, sightRange, whatIsPlayer);
+        
         playerInAttackRange = Physics.CheckSphere(transform.position, attackRange, whatIsPlayer);
 
         if (!playerInSightRange && !playerInAttackRange) Patroling();
@@ -98,7 +99,11 @@ public class EnemyAi: MonoBehaviour
         //Make sure enemy doesn't move
         agent.SetDestination(transform.position);
 
-        transform.LookAt(player);
+        //transform.LookAt(player);
+
+        Vector3 direction = (player.position- transform.position).normalized;
+        transform.forward = new Vector3(direction.x, 0, direction.z);
+
 
         if (!alreadyAttacked)
         {

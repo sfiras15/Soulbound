@@ -7,26 +7,31 @@ public class Weapon : MonoBehaviour
     public Weapon_SO item;
 
     public BoxCollider weaponCollider;
+    int id = 0;
 
     private void Awake()
     {
         weaponCollider = GetComponent<BoxCollider>();
+        id = (int)item.type;
     }
 
     private void Start()
     {
         weaponCollider.enabled = false;
+
     }
 
     //Bugged atm needs fixing
-
-    private void OnCollisionEnter(Collision collision)
+    private void OnTriggerEnter(Collider other)
     {
-        Enemy enemy = collision.gameObject.GetComponent<Enemy>();
+       // Debug.Log(other.name);
+        Enemy enemy = other.gameObject.GetComponent<Enemy>();
         if (enemy != null)
         {
             Debug.Log(enemy.id);
-            PlayerManager.instance.HitEnemy(enemy.id);
+            enemy.EnemyDamaged();
+
         }
     }
+
 }

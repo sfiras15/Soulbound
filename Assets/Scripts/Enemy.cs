@@ -9,14 +9,14 @@ public class Enemy : MonoBehaviour
     private Health enemyHealth;
     // Used to identify the enemy for the onHittingEnemy event
     public int id;
-    private void OnEnable()
-    {
-        PlayerManager.onHittingEnemy += EnemyDamaged;
-    }
-    private void OnDisable()
-    {
-        PlayerManager.onHittingEnemy -= EnemyDamaged;
-    }
+    //private void OnEnable()
+    //{
+    //    PlayerManager.onHittingEnemy += EnemyDamaged;
+    //}
+    //private void OnDisable()
+    //{
+    //    PlayerManager.onHittingEnemy -= EnemyDamaged;
+    //}
     // Start is called before the first frame update
     void Awake()
     {
@@ -30,13 +30,12 @@ public class Enemy : MonoBehaviour
             gameObject.SetActive(false);
         }
     }
-    public void EnemyDamaged(int id)
+    public void EnemyDamaged()
     {
-        if (this.id == id)
-        {
+
             enemyHealth.Damage(PlayerManager.instance.inputPlayer.weapon.item.damage);
             //Update healthbar UI
             healthBar.UpdateHealth(enemyHealth.GetMaxHealth, enemyHealth.GetCurrentHealth);
-        }  
+         
     }
 }

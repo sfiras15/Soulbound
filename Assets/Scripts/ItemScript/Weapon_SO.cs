@@ -8,9 +8,9 @@ public class Weapon_SO : Item
 {
     public enum WeaponType
     {
-        Axe,
-        Sword,
-        Bow,
+        Axe=0,
+        Sword=1,
+        Bow=2,
     }
 
     public int damage;
