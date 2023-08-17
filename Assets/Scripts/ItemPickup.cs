@@ -6,22 +6,18 @@ using UnityEngine;
 public class ItemPickup : MonoBehaviour
 {
 
-    public Item item;
-
-    private InputPlayer inputPlayer;
+    [SerializeField] private Item item;
     [SerializeField] private float pickUpDistance = 1.5f;
 
-    private void Start()
+    public float GetPickUpDistance
     {
-        inputPlayer = PlayerManager.instance.inputPlayer;
+        get { return pickUpDistance; }
     }
 
-    private void OnMouseOver()
+    public Item GetItem
     {
-        if (inputPlayer.collectKeyPressed && Vector3.Distance(transform.position,inputPlayer.transform.position) <= pickUpDistance)
-        {
-            Debug.Log("item id :" + item.itemId);
-            Inventory.instance.Add(item);
-        }
+        get { return item; }
     }
+
+
 }

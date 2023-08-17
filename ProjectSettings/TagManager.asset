@@ -5,6 +5,7 @@ TagManager:
   serializedVersion: 2
   tags:
   - CinemachineTarget
+  - Enemy
   layers:
   - Default
   - TransparentFX
@@ -17,9 +18,9 @@ TagManager:
   - Character
   - Ground
   - Ledge
-  - 
-  - 
-  - 
+  - Obstacles
+  - Enemy
+  - Item
   - 
   - 
   - 

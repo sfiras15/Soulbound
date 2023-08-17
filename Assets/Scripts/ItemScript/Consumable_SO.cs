@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
@@ -12,14 +10,23 @@ public class Consumable_SO : Item
         DamageIncrease,
         MsIncrease,
     }
-
+    public float buffValue;
     public int duration;
     public ConsumableType type;
     public int level;
 
     public override void Use()
     {
-        base.Use();
+        if (usable)
+        {
+            if (PlayerManager.instance.playerLevel < level)
+            {
+                Debug.Log("This potion is dangerous for you, please go level up");
+                return;
+            }
+            Inventory.instance.UsePotion(this);
+            Inventory.instance.RemoveItem(this);
+        }
         //Drink Consumable
     }
 

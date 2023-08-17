@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using static PlayerMovement;
 
@@ -28,13 +26,13 @@ public class CharacterAnimation : MonoBehaviour
     void Update()
     {
         
-        if (playerMovement.state == MovementState.air)
+        if (playerMovement.state == MovementState.air || playerMovement.state  == MovementState.crouching && playerMovement.jumping && !playerMovement.attacking)
         {
             animator.SetBool("Jump", true);
-            animator.SetBool("Grounded", playerMovement.grounded);
+            animator.SetBool("Grounded", playerMovement.GetGroundedState);
         }
         else animator.SetBool("Jump", false);
-        animator.SetBool("Grounded", playerMovement.grounded);
+        animator.SetBool("Grounded", playerMovement.GetGroundedState);
        
     }
 }

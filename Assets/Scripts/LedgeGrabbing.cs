@@ -93,7 +93,7 @@ public class LedgeGrabbing : MonoBehaviour
         // maybe direction is wrong,fix later
         bool ledgeDetected = Physics.SphereCast(transform.position + Vector3.up, ledgeSphereCastRadius, playerMovement.mouseDirection.normalized, out ledgeHit, ledgeDetectionLength, whatIsLedge);
         // visualize the sphereCast
-        Debug.DrawRay(transform.position, playerMovement.mouseDirection.normalized, Color.yellow, 20f);
+        Debug.DrawRay(transform.position+ Vector3.up, playerMovement.mouseDirection.normalized, Color.yellow, 20f);
         if (!ledgeDetected) return;
 
         float distanceToLedge = Vector3.Distance(transform.position, ledgeHit.transform.position);

@@ -21,9 +21,9 @@ public class Health
     {
         get { return maxHealth; }
     }
-    public void Damage(int amount)
+    public void Damage(float amount)
     {
-        this.currentHealth -= amount;
+        this.currentHealth -= Mathf.RoundToInt(amount);
         if (this.currentHealth < 0 ) this.currentHealth = 0;
     }
 }

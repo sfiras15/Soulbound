@@ -7,6 +7,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Movement")]
     [SerializeField] private float walkSpeed;
     [SerializeField] private float sprintSpeed;
+    private float groundedSpeedMultiplier = 1f;
     private float moveSpeed;
     private float desiredMoveSpeed;
     private float lastDesiredMoveSpeed;
@@ -22,7 +23,7 @@ public class PlayerMovement : MonoBehaviour
 
 
     [SerializeField] private float groundDrag;
-    [SerializeField] private Vector3 mousePosition;
+    public Vector3 mousePosition;
     public Vector3 mouseDirection;
     [SerializeField] private float rotateSpeed;
 
@@ -54,7 +55,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Ground Check")]
     [SerializeField] private float playerHeight;
     [SerializeField] private LayerMask whatIsGround;
-    public bool grounded;
+    private bool grounded;
     [SerializeField] private float GroundedOffset = -0.14f;
 
     [SerializeField] private float GroundedRadius = 0.28f;
@@ -62,12 +63,11 @@ public class PlayerMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] private Camera cam;
     [SerializeField] private CapsuleCollider capsuleCollider;
-    private InputPlayer inputPlayer;
     private Animator animator;
     private Rigidbody rb;
-    //public Transform orientation;
 
-
+    // variable for checking if we are locked onto an enemy or not
+    private bool lockedOnEnemy = false;
     // tracking the state of the player 
     public MovementState state;
     public enum MovementState
@@ -83,7 +83,7 @@ public class PlayerMovement : MonoBehaviour
         air
     }
 
-    
+    public bool jumping;
     public bool sliding;
     public bool crouching;
     public bool wallrunning;
@@ -103,7 +103,7 @@ public class PlayerMovement : MonoBehaviour
         initialCharacterCenter = capsuleCollider.center;
         animator = GetComponent<Animator>();
         initialAudioSound = FootstepAudioVolume;
-        inputPlayer = PlayerManager.instance.inputPlayer;        
+
     }
 
     private void Start()
@@ -121,7 +121,7 @@ public class PlayerMovement : MonoBehaviour
                 transform.position.z);
         grounded = Physics.CheckSphere(spherePosition, GroundedRadius, whatIsGround,
             QueryTriggerInteraction.Ignore);
-        
+
         MyInput();
         SpeedControl();
         StateHandler();
@@ -136,6 +136,7 @@ public class PlayerMovement : MonoBehaviour
             rb.drag = 0;
         animator.SetFloat("Speed", rb.velocity.magnitude);
     }
+
 
     private void FixedUpdate()
     {
@@ -157,13 +158,15 @@ public class PlayerMovement : MonoBehaviour
                 //debugSphere.forward = transform.forward;
             }
         }
-        //orientation.forward = Vector3.Lerp(orientation.forward, mouseDirection, rotateSpeed * Time.deltaTime);
-        transform.forward = Vector3.Lerp(transform.forward, mouseDirection, rotateSpeed * Time.deltaTime);
+        // if we are not locked onto an enemy look toward the mouseDirection
+        if (!lockedOnEnemy) transform.forward = Vector3.Lerp(transform.forward, mouseDirection, rotateSpeed * Time.deltaTime);
+
 
 
         // when to jump
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
         {
+            jumping = true;
             readyToJump = false;
 
             Jump();
@@ -235,14 +238,14 @@ public class PlayerMovement : MonoBehaviour
         else if (grounded && Input.GetKey(sprintKey))
         {
             state = MovementState.sprinting;
-            desiredMoveSpeed = sprintSpeed;
+            desiredMoveSpeed = sprintSpeed * groundedSpeedMultiplier;
         }
 
         // Mode - Walking
         else if (grounded)
         {
             state = MovementState.walking;
-            desiredMoveSpeed = walkSpeed;
+            desiredMoveSpeed = walkSpeed * groundedSpeedMultiplier;
         }
 
         // Mode - Air
@@ -348,6 +351,7 @@ public class PlayerMovement : MonoBehaviour
     private void ResetJump()
     {
         readyToJump = true;
+        jumping = false;
 
     }
     public static float Round(float value, int digits)
@@ -374,5 +378,23 @@ public class PlayerMovement : MonoBehaviour
         {
             AudioSource.PlayClipAtPoint(LandingAudioClip, transform.TransformPoint(capsuleCollider.center), FootstepAudioVolume);
         }
+    }
+    public void IncreaseSpeed(float multiplier)
+    {
+        groundedSpeedMultiplier = multiplier;
+    }
+
+    public void EnemyLocked(bool value)
+    {
+        lockedOnEnemy = value;
+    }
+    public bool GetLockOnEnemyState
+    {
+        get { return lockedOnEnemy; }
+    }
+
+    public bool GetGroundedState
+    {
+        get { return grounded; }
     }
 }

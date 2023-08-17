@@ -9,6 +9,8 @@ public class PlayerManager : MonoBehaviour
 
     public InputPlayer inputPlayer;
 
+    public int playerLevel;
+
     public static event Action<int> onHittingEnemy;
 
     private void Awake()

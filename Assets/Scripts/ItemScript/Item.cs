@@ -15,10 +15,6 @@ public class Item : ScriptableObject
 
     public virtual void Use()
     {
-        if (usable)
-        {
-            Inventory.instance.UseItem(this);
-            Inventory.instance.RemoveItem(this);
-        }
+       
     }
 }
