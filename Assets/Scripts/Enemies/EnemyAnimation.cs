@@ -11,7 +11,9 @@ public class EnemyAnimation : MonoBehaviour
         animator = GetComponent<Animator>();
     }
 
+
     // Update is called once per frame
+
     void Update()
     {    
         if (enemyAi.GetAttackState)

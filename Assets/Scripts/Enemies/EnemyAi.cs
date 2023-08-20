@@ -77,7 +77,7 @@ public class EnemyAi: MonoBehaviour
         //Debug.Log("playerInSightRange " + playerInSightRange);
         //Debug.Log("playerInAttackRange " + playerInAttackRange);
 
-        if (!playerInSightRange && !playerInAttackRange) Patroling();
+        if (!playerInSightRange && !playerInAttackRange && !alreadyAttacked) Patroling();
         if (playerInSightRange && !playerInAttackRange && !alreadyAttacked) ChasePlayer();
         if (playerInAttackRange && playerInSightRange) AttackPlayer();
     }
@@ -168,7 +168,7 @@ public class EnemyAi: MonoBehaviour
         Vector3 direction = (player.position- transform.position).normalized;
         transform.forward = new Vector3(direction.x, 0, direction.z);
 
-
+        Debug.Log(alreadyAttacked);
         if (!alreadyAttacked)
         {
             alreadyAttacked = true;

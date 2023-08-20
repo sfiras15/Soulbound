@@ -1,8 +1,12 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-
-
+[System.Serializable]
+public class weaponHolder
+{
+    public Weapon_SO.WeaponType type;
+    public Transform transform;
+}
 // Tracks the current equiped weapon // tracks all of the weapons prefabs in the game and where each type of weapon will be stored inside the player's prefab
 public class EquipementManager : MonoBehaviour
 {
@@ -14,6 +18,9 @@ public class EquipementManager : MonoBehaviour
 
     // list of all the weapons in the game
     [SerializeField] private Weapon[] weaponsPrefab;
+
+    [SerializeField] List<weaponHolder> holders;
+
     private Weapon currentEquippedWeapon;
 
 
@@ -22,12 +29,10 @@ public class EquipementManager : MonoBehaviour
 
     private void Awake()
     {
-        weaponHolders = new Dictionary<Weapon_SO.WeaponType, Transform>
-        {
-            { Weapon_SO.WeaponType.Axe, axeHolder },
-            { Weapon_SO.WeaponType.Spear, spearHolder },
-            { Weapon_SO.WeaponType.Mace, maceHolder }
-        };
+        weaponHolders = new Dictionary<Weapon_SO.WeaponType, Transform>();
+
+        foreach (var item in holders)
+            weaponHolders.Add(item.type, item.transform);
     }
 
     public void EquipWeapon(Weapon_SO weapon)
@@ -45,6 +50,7 @@ public class EquipementManager : MonoBehaviour
         }
 
         ClearWeaponHolders();
+
 
         foreach (Weapon weaponPrefab in weaponsPrefab)
         {

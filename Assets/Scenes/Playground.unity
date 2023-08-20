@@ -3548,6 +3548,13 @@ MonoBehaviour:
   - {fileID: 7927702940546173822, guid: a9de5a98f016a334c9a1113e07b1a12f, type: 3}
   - {fileID: 5300602234352651682, guid: 8f2b838937bf3ce499fe912cc972a648, type: 3}
   - {fileID: 4480324323753034441, guid: 85ba34deb1de19f41ae8795fef846895, type: 3}
+  holders:
+  - type: 0
+    transform: {fileID: 615009104}
+  - type: 1
+    transform: {fileID: 838852840}
+  - type: 2
+    transform: {fileID: 1172651980}
 --- !u!4 &1289207197
 Transform:
   m_ObjectHideFlags: 0
@@ -3704,7 +3711,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7cdd9873fc7066549be4c8e4d3bbd6a1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: d9dc1bd1d356d394a823a3a69db1a29a, type: 2}
+  item: {fileID: 11400000, guid: 8152e626fa7f17a468fd416591844db0, type: 2}
   pickUpDistance: 1.5
 --- !u!65 &1425667224
 BoxCollider:
@@ -6598,7 +6605,7 @@ PrefabInstance:
     - target: {fileID: 8033886023297446144, guid: 66a1c76b44cf33d4b8f90257b805ae59,
         type: 3}
       propertyPath: m_UpdateMode
-      value: 1
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8497638286981537640, guid: 66a1c76b44cf33d4b8f90257b805ae59,
         type: 3}
@@ -7210,7 +7217,7 @@ PrefabInstance:
     - target: {fileID: 6445110016204551190, guid: 38e0f8ca7423ee647a7778b36754fa24,
         type: 3}
       propertyPath: dodgeKey
-      value: 326
+      value: 109
       objectReference: {fileID: 0}
     - target: {fileID: 6445110016204551190, guid: 38e0f8ca7423ee647a7778b36754fa24,
         type: 3}
@@ -8413,6 +8420,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
