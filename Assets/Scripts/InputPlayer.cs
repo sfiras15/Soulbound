@@ -59,7 +59,7 @@ public class InputPlayer : MonoBehaviour
     [SerializeField] private KeyCode lockOnEnemyButton;
     [SerializeField] private float lockOnRadius = 7f;
     [SerializeField] private float lockOnSpeed = 5f;
-    private Transform currentLockedEnemy;
+    public Transform currentLockedEnemy;
     // nearby enemies ready for lock
     [SerializeField] private Collider[] CloseEnemies;
 
