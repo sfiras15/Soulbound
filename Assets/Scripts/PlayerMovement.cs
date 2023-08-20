@@ -36,7 +36,7 @@ public class PlayerMovement : MonoBehaviour
     [Header("Audio")]
     [SerializeField] private AudioClip LandingAudioClip;
     [SerializeField] private AudioClip[] FootstepAudioClips;
-    [Range(0, 1)] [SerializeField] private float FootstepAudioVolume = 0.5f;
+    [Range(0, 1)][SerializeField] private float FootstepAudioVolume = 0.5f;
 
     [Header("Crouching")]
     [SerializeField] private float crouchedHeight = 1.4f;
@@ -45,7 +45,7 @@ public class PlayerMovement : MonoBehaviour
     private float initialAudioSound;
     private Vector3 initialCharacterCenter;
 
-    
+
 
     [Header("Keybinds")]
     [SerializeField] private KeyCode jumpKey = KeyCode.Space;
@@ -92,10 +92,14 @@ public class PlayerMovement : MonoBehaviour
 
     public bool freeze;
     public bool unlimited;
-    
+
     public bool restricted;
 
-    
+
+    //Testing
+
+    public InputPlayer inputPlayer;
+    public float currentLerpSpeed;
 
     private void Awake()
     {
@@ -123,6 +127,11 @@ public class PlayerMovement : MonoBehaviour
             QueryTriggerInteraction.Ignore);
 
         MyInput();
+
+        if (!lockedOnEnemy)
+        {
+            transform.forward = Vector3.Lerp(transform.forward, mouseDirection, rotateSpeed * Time.deltaTime);
+        }
         SpeedControl();
         StateHandler();
 
@@ -145,23 +154,53 @@ public class PlayerMovement : MonoBehaviour
 
     private void MyInput()
     {
+        animator.SetBool("LockedOn", lockedOnEnemy);
         Ray rayPosition = cam.ScreenPointToRay(Input.mousePosition);
         if (Input.GetMouseButtonDown(1) /*&& !inputPlayer.attacking*/) // do the raycast and the checking only if the player wanna to move
         {
+
             if (Physics.Raycast(rayPosition, out var hitInfo, Mathf.Infinity, whatIsGround))
             {
 
                 mousePosition = hitInfo.point;
                 mouseDirection = mousePosition - transform.position;
                 mouseDirection.y = 0f;
-                
-                //debugSphere.forward = transform.forward;
+                if (lockedOnEnemy)
+                {
+                    Vector3 clickPosition = mousePosition;
+                    Vector3 enemyDirection = (inputPlayer.currentLockedEnemy.position - transform.position).normalized;
+                    Vector3 clickDirection = (clickPosition - transform.position).normalized;
+
+                    float dotForward = Vector3.Dot(enemyDirection, clickDirection);
+                    float dotRight = Vector3.Dot(enemyDirection, Quaternion.Euler(0, 90, 0) * clickDirection);
+                    float dotLeft = Vector3.Dot(enemyDirection, Quaternion.Euler(0, -90, 0) * clickDirection);
+                    float dotBackward = -dotForward;
+                    Debug.Log("DotForward = " + dotForward);
+                    Debug.Log("dotRight = " + dotRight);
+                    Debug.Log("dotLeft = " + dotLeft);
+                    if (dotForward > dotRight && dotForward > dotLeft && dotForward > dotBackward)
+                    {
+                        // Move Forward
+                        SetMovementParameters(1f, 0f, 0f, 0f);
+                    }
+                    else if (dotRight > dotLeft && dotRight > dotBackward)
+                    {
+                        // Move Right
+                        SetMovementParameters(0f, 1f, 0f, 0f);
+                    }
+                    else if (dotLeft > dotBackward)
+                    {
+                        // Move Left
+                        SetMovementParameters(0f, 0f, 1f, 0f);
+                    }
+                    else
+                    {
+                        // Move Backward
+                        SetMovementParameters(0f, 0f, 0f, 1f);
+                    }
+                }
             }
         }
-        // if we are not locked onto an enemy look toward the mouseDirection
-        if (!lockedOnEnemy) transform.forward = Vector3.Lerp(transform.forward, mouseDirection, rotateSpeed * Time.deltaTime);
-
-
 
         // when to jump
         if (Input.GetKey(jumpKey) && readyToJump && grounded)
@@ -179,7 +218,24 @@ public class PlayerMovement : MonoBehaviour
 
     bool keepMomentum;
 
+    private void SetMovementParameters(float forward, float right, float left, float backward)
+    {       
+        float currentForward = animator.GetFloat("Forward");
+        float currentRight = animator.GetFloat("Right");
+        float currentLeft = animator.GetFloat("Left");
+        float currentBackward = animator.GetFloat("Backward");
 
+        float smoothedForward = Mathf.Lerp(currentForward, forward, Time.deltaTime * currentLerpSpeed);
+        float smoothedRight = Mathf.Lerp(currentRight, right, Time.deltaTime * currentLerpSpeed);
+        float smoothedLeft = Mathf.Lerp(currentLeft, left, Time.deltaTime * currentLerpSpeed);
+        float smoothedBackward = Mathf.Lerp(currentBackward, backward, Time.deltaTime * currentLerpSpeed);
+
+        animator.SetFloat("Forward", smoothedForward);
+        animator.SetFloat("Right", smoothedRight);
+        animator.SetFloat("Left", smoothedLeft);
+        animator.SetFloat("Backward", smoothedBackward);
+
+    }
     private void Crouch()
     {
 
@@ -262,7 +318,7 @@ public class PlayerMovement : MonoBehaviour
                 mousePosition = transform.position;
             }
         }
-            bool desiredMoveSpeedHasChanged = desiredMoveSpeed != lastDesiredMoveSpeed;
+        bool desiredMoveSpeedHasChanged = desiredMoveSpeed != lastDesiredMoveSpeed;
 
         if (desiredMoveSpeedHasChanged)
         {
@@ -294,7 +350,7 @@ public class PlayerMovement : MonoBehaviour
         {
             moveSpeed = Mathf.Lerp(startValue, desiredMoveSpeed, time / difference);
 
-            
+
             time += Time.deltaTime * speedIncreaseMultiplier;
 
             yield return null;
@@ -324,7 +380,7 @@ public class PlayerMovement : MonoBehaviour
                 rb.AddForce(moveDirection * moveSpeed * 10f * airMultiplier, ForceMode.Force);
             }
         }
-                
+
     }
 
     private void SpeedControl()
