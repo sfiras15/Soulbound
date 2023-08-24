@@ -1,12 +1,14 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
 [System.Serializable]
-public class weaponHolder
+public class WeaponHolder
 {
     public Weapon_SO.WeaponType type;
     public Transform transform;
 }
+
 // Tracks the current equiped weapon // tracks all of the weapons prefabs in the game and where each type of weapon will be stored inside the player's prefab
 public class EquipementManager : MonoBehaviour
 {
@@ -15,14 +17,9 @@ public class EquipementManager : MonoBehaviour
     [SerializeField] private Transform spearHolder;
     [SerializeField] private Transform maceHolder;
 
+    [SerializeField] List<WeaponHolder> holders;
 
-    // list of all the weapons in the game
-    [SerializeField] private Weapon[] weaponsPrefab;
-
-    [SerializeField] List<weaponHolder> holders;
-
-    private Weapon currentEquippedWeapon;
-
+    private Weapon_SO currentEquippedWeapon;
 
     //Dictionary for each weapon type and the appropriate transform to equip the weapon
     private Dictionary<Weapon_SO.WeaponType, Transform> weaponHolders;
@@ -33,59 +30,77 @@ public class EquipementManager : MonoBehaviour
 
         foreach (var item in holders)
             weaponHolders.Add(item.type, item.transform);
+
     }
 
     public void EquipWeapon(Weapon_SO weapon)
     {
-        Debug.Log("weapon type : " + weapon.type + " weapon level : " + weapon.level);
-        Debug.Log(" player level : " + PlayerManager.instance.playerLevel);
+        //Debug.Log("weapon type : " + weapon.type + " weapon level : " + weapon.level);
+        //Debug.Log(" player level : " + PlayerManager.instance.playerLevel);
         
         if (PlayerManager.instance.playerLevel < weapon.level)
         {
             return; // player low level
         }
-        if (currentEquippedWeapon != null && currentEquippedWeapon.item.itemId == weapon.itemId)
+        if (currentEquippedWeapon != null && currentEquippedWeapon.itemId == weapon.itemId)
         {
             return; // Already equipped
         }
+        
+        if (currentEquippedWeapon != null) ClearWeaponHolder(currentEquippedWeapon.type);
 
-        ClearWeaponHolders();
-
-
-        foreach (Weapon weaponPrefab in weaponsPrefab)
+        if (weaponHolders.TryGetValue(weapon.type, out Transform weaponHolder))
         {
-            // search for the right weapon to equip inside the the list of all the weapons in the game
-            if (weaponPrefab.item.itemId == weapon.itemId )
+            Equip(weapon, weaponHolder);
+        }
+
+    }
+
+    public void RemoveWeapon(Weapon_SO.WeaponType type)
+    {
+        ClearWeaponHolder(type);
+        currentEquippedWeapon = null;
+    }
+    // set all the children's gameobjects of the current equipped weapon holder to false
+    public void ClearWeaponHolder(Weapon_SO.WeaponType type)
+    {
+
+        //Debug.Log("current equipped weapon type is : " + type);
+        if (weaponHolders.TryGetValue(type, out Transform weaponHolder))
+        {
+            for (int i = weaponHolder.childCount - 1; i >= 0; i--)
             {
-                if (weaponHolders.TryGetValue(weaponPrefab.item.type, out Transform weaponHolder))
-                {
-                    Equip(weaponPrefab, weaponHolder);
-                }
+                weaponHolder.GetChild(i).gameObject.SetActive(false);
+            }
+        }
+    }
+
+    private void Equip(Weapon_SO weapon, Transform weaponHolder)
+    {
+        var weaponPrefabID = weapon.prefab.GetComponent<Weapon>().GetPrefabID; 
+
+        for (int i = weaponHolder.childCount - 1; i >= 0; i--)
+        {
+            // compare the weapon.prefabID with all of the weapons id inside the player's weapon holder
+            var prefabID =weaponHolder.GetChild(i).gameObject.GetComponent<Weapon>().GetPrefabID;
+
+            //Debug.Log("prefab id : " + prefabID);
+            //Debug.Log("weapon prefab id : " + weaponPrefabID);
+            //Debug.Log(prefabID == weaponPrefabID);
+
+
+            if (prefabID == weaponPrefabID)
+            {
+                weaponHolder.GetChild(i).gameObject.SetActive(true);
+                currentEquippedWeapon = weapon;
                 return;
-            }
+            }         
         }
+
+        
     }
 
-
-    // clear all the children of the weapon holders
-    private void ClearWeaponHolders()
-    {
-        foreach (var holder in weaponHolders.Values)
-        {
-            for (int i = holder.childCount - 1; i >= 0; i--)
-            {
-                Destroy(holder.GetChild(i).gameObject);
-            }
-        }
-    }
-
-    private void Equip(Weapon weapon, Transform weaponHolder)
-    {
-        Instantiate(weapon.gameObject, weaponHolder);
-        currentEquippedWeapon = weapon;
-    }
-
-    public Weapon GetCurrentEquippedWeapon
+    public Weapon_SO GetCurrentEquippedWeapon
     {
         get { return currentEquippedWeapon; }
     }

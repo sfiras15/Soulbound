@@ -26,4 +26,9 @@ public class Health
         this.currentHealth -= Mathf.RoundToInt(amount);
         if (this.currentHealth < 0 ) this.currentHealth = 0;
     }
+    public void Heal(float amount)
+    {
+        this.currentHealth += Mathf.RoundToInt(amount);
+        if (this.currentHealth > maxHealth) currentHealth=maxHealth;
+    }
 }

@@ -1,10 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 
 
+
 [CreateAssetMenu(fileName = "Items" , menuName = "Items/Item")]
+
 public class Item : ScriptableObject
 {
     public string itemName;
@@ -12,7 +12,15 @@ public class Item : ScriptableObject
     public int itemId;
     public Sprite itemIcon;
     public bool usable;
-
+    public ItemType itemType;
+    public enum ItemType
+    {
+        Soul,
+        Artifact,
+        Weapon,
+        Consumable
+    }
+    
     public virtual void Use()
     {
        

@@ -4,7 +4,7 @@ using UnityEngine.AI;
 
 public class EnemyAi: MonoBehaviour
 {
-    [SerializeField] private Enemy enemy;
+    private EnemyAnimation enemyAnimation;
     [SerializeField] private NavMeshAgent agent;
     [SerializeField] private LayerMask whatIsGround, whatIsObstacle,whatIsPlayer;
     private Transform player;
@@ -18,6 +18,8 @@ public class EnemyAi: MonoBehaviour
     //Get the attack animation duration
     [SerializeField] private float attackDuration;
     private bool alreadyAttacked;
+
+    [SerializeField] float attackDamage;
 
     //the size of the sphere that's being casted when the enemy attacks in EnemyAnimation
     [SerializeField] private float attackSize = 0.15f;
@@ -37,23 +39,20 @@ public class EnemyAi: MonoBehaviour
     [SerializeField] private float timeToResetAlertness = 5f;
 
     // in case The enemy gets hit from outside his sightRange
-    private void OnEnable()
-    {
-        PlayerManager.onHittingEnemy += Chase;
-    }
-    private void OnDisable()
-    {
-        PlayerManager.onHittingEnemy -= Chase;
-    }
 
     private void Awake()
     {
-        enemy = GetComponent<Enemy>();
         agent = GetComponent<NavMeshAgent>();
+        enemyAnimation = GetComponentInChildren<EnemyAnimation>();
     }
+
+    
     private void Start()
     {
         player = PlayerManager.instance.inputPlayer.gameObject.transform;
+
+        //variables used for the attackAnimation
+        enemyAnimation.EnemyStats(attackDamage, attackSize, attackRange, whatIsPlayer);
     }
 
     private void Update()
@@ -80,6 +79,9 @@ public class EnemyAi: MonoBehaviour
         if (!playerInSightRange && !playerInAttackRange && !alreadyAttacked) Patroling();
         if (playerInSightRange && !playerInAttackRange && !alreadyAttacked) ChasePlayer();
         if (playerInAttackRange && playerInSightRange) AttackPlayer();
+
+        //
+        enemyAnimation.EnemySpeed(agent.velocity.magnitude);
     }
 
 
@@ -140,10 +142,6 @@ public class EnemyAi: MonoBehaviour
         return false;
     }
 
-    private void Chase(int id)
-    {
-        if (enemy.GetEnemyId == id) ChasePlayer();
-    }
 
     private void ChasePlayer()
     {
@@ -168,10 +166,11 @@ public class EnemyAi: MonoBehaviour
         Vector3 direction = (player.position- transform.position).normalized;
         transform.forward = new Vector3(direction.x, 0, direction.z);
 
-        Debug.Log(alreadyAttacked);
+        //Debug.Log(alreadyAttacked);
         if (!alreadyAttacked)
         {
             alreadyAttacked = true;
+            enemyAnimation.EnemyAttackState(true);
             //Invoke(nameof(ResetAttack), attackDuration);
             StartCoroutine(ResetAttack(attackDuration));
         }
@@ -181,6 +180,7 @@ public class EnemyAi: MonoBehaviour
     {
         yield return new WaitForSeconds(duration);
         alreadyAttacked = false;
+        enemyAnimation.EnemyAttackState(false);
     }
 
     private void OnDrawGizmosSelected()
@@ -190,31 +190,6 @@ public class EnemyAi: MonoBehaviour
         Gizmos.color = Color.yellow;
         Gizmos.DrawWireSphere(transform.position, sightRange);
     }
-
-
-    public NavMeshAgent GetAgent
-    {
-        get { return agent; }
-    }
-
-    // For the Enemy Animation script
-    public bool GetAttackState
-    {
-        get { return alreadyAttacked; }
-    }
-    public LayerMask GetPlayerLayer
-    {
-        get { return whatIsPlayer; }
-    }
-    public float GetAttackRange
-    {
-        get { return attackRange; }
-    }
-    public float GetAttackSize
-    {
-        get { return attackSize; }
-    }
-
 }
 
 

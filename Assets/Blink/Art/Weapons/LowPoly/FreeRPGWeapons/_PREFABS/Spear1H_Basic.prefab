@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 3158709039170915112}
   - component: {fileID: 2051995151711470733}
   - component: {fileID: 4296101983821426759}
-  - component: {fileID: 5300602234352651682}
+  - component: {fileID: -7773438445487469290}
   m_Layer: 0
   m_Name: Spear1H_Basic
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &5300602234352651682
+--- !u!114 &-7773438445487469290
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,4 +96,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd52982a8db3dae4680bf4f260f2319a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: d9dc1bd1d356d394a823a3a69db1a29a, type: 2}
+  prefabID: 18

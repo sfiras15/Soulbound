@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 811062370745517174}
   - component: {fileID: 4390626425023368147}
   - component: {fileID: 1948462360350359321}
-  - component: {fileID: 7927702940546173822}
+  - component: {fileID: 7860501580738271223}
   m_Layer: 0
   m_Name: Axe1H_Basic
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &7927702940546173822
+--- !u!114 &7860501580738271223
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,4 +96,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd52982a8db3dae4680bf4f260f2319a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: 8152e626fa7f17a468fd416591844db0, type: 2}
+  prefabID: 0

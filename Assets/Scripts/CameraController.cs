@@ -3,7 +3,7 @@ using Cinemachine;
 
 public class CameraController : MonoBehaviour
 {
-    public float rotationSpeed = 0.05f;
+    [SerializeField] private float rotationSpeed = 0.05f;
 
 
     private CinemachineVirtualCamera virtualCamera;
@@ -11,9 +11,9 @@ public class CameraController : MonoBehaviour
     private bool isRotating = false;
     private Vector3 lastMousePosition;
 
-    public float minZoomDistance = 2.0f;
-    public float maxZoomDistance = 10.0f;
-    public float zoomSpeed = 10.0f;
+    [SerializeField] private float minZoomDistance = 2.0f;
+    [SerializeField] private float maxZoomDistance = 10.0f;
+    [SerializeField] private float zoomSpeed = 10.0f;
     private void Start()
     {
         virtualCamera = GetComponent<CinemachineVirtualCamera>();

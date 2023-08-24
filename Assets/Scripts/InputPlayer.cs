@@ -1,7 +1,6 @@
 using System.Collections;
-using System.Runtime.CompilerServices;
 using UnityEngine;
-using UnityEngine.EventSystems;
+
 
 
 public class InputPlayer : MonoBehaviour
@@ -14,7 +13,6 @@ public class InputPlayer : MonoBehaviour
 
     [Header("Collecting")]
     [SerializeField] private KeyCode collectKey;
-    public bool collectKeyPressed;
 
     [Header("Attacking")]
     [SerializeField] private KeyCode attackKey;
@@ -31,7 +29,8 @@ public class InputPlayer : MonoBehaviour
     [Header("Dodging")]
     [SerializeField] private KeyCode dodgeKey = KeyCode.LeftAlt;
     [SerializeField] private float timeBetweenDodges = 1f;
-    [SerializeField] bool dodging = false;
+    [SerializeField] private bool dodging = false;
+    [SerializeField] private float dodgeStaminaConsumption = 25f;
     // For the raycast to get the mousePosition 
     [SerializeField] private LayerMask whatIsGround;
 
@@ -67,15 +66,29 @@ public class InputPlayer : MonoBehaviour
     [SerializeField] private KeyCode lockOffEnemyButton;
     [SerializeField] private float lockOffDistance = 9f;
 
-    
-   
+    [Header("Player's Health")]
+    [SerializeField] private Bar playerHealthBar;
+    private Health playerHealth;
+
+
+    [Header("Player's Stamina")]
+    [SerializeField] private Bar playerStaminaBar;
+    private Stamina playerStamina;
+
+    //Variables for stamina recovery/drain system
+    [SerializeField] private float staminaRecoveryRate = 1f;
+    private float lastRecovryTime;
+    private bool recoveryTimerIsRunning = false;
+    private bool drainTimerIsRunning = false;
+    private float lastSprintTime;
+
     private void Awake()
     {
+        playerHealth = new Health(100);
+        playerStamina = new Stamina(100);
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
     }
-
-
     private void OnEnable()
     {
         // Event for checking if the player is using the UI or not so we remove some functionalities
@@ -83,17 +96,41 @@ public class InputPlayer : MonoBehaviour
 
         // Event for when the player is using a consumable
         Inventory.onConsumableUse += playerState;
+
+        // Event for when the player is taking damage
+        EnemyAnimation.onPlayerDamaged += UpdateHealth;
     }
     private void OnDisable()
     {
         InventoryUI.onInventoryUIStateChanged -= UpdateInventoryUIState;
         Inventory.onConsumableUse -= playerState;
+        EnemyAnimation.onPlayerDamaged -= UpdateHealth;
     }
+
+    private void Start()
+    {
+
+        //Update the stamina/healthbar UI
+        playerHealthBar.GetHealthBarText.text = playerHealth.GetCurrentHealth.ToString() + "/" + playerHealth.GetMaxHealth.ToString();
+        playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
+        playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+
+
+    }
+    private void UpdateHealth(float damage)
+    {
+        playerHealth.Damage(damage);
+        playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
+        //Debug.Log(playerHealth.GetCurrentHealth);
+    }
+
 
     private void playerState(Consumable_SO potion)
     {
         if (potion.type == Consumable_SO.ConsumableType.Healing)
         {
+            playerHealth.Heal(potion.buffValue);
+            playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
             Debug.Log("healing player");
             //heal player
             // add player's healthbar later
@@ -131,11 +168,13 @@ public class InputPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        //
+        StaminaManagement();
         if (Input.GetKeyDown(collectKey))
         {
             Collect();
         }
-        if (Input.GetKeyDown(dodgeKey))
+        if (Input.GetKeyDown(dodgeKey) && playerStamina.GetCurrentStamina >= dodgeStaminaConsumption)
         {
             Dodge();
         }
@@ -145,7 +184,8 @@ public class InputPlayer : MonoBehaviour
             return;
         }
 
-        if (Input.GetKeyDown(attackKey) && readyToAttack && equipementManager.GetCurrentEquippedWeapon != null)
+        if (Input.GetKeyDown(attackKey) && readyToAttack && equipementManager.GetCurrentEquippedWeapon != null 
+            && playerStamina.GetCurrentStamina >= equipementManager.GetCurrentEquippedWeapon.staminaConsumption)
         {
             Attack();
         }
@@ -166,25 +206,71 @@ public class InputPlayer : MonoBehaviour
             }    
         }
 
-       
-       
+        
+    }
+    // Handles the stamina recovery/drain of the player when he's walking/sprinting
+    public void StaminaManagement()
+    {
+        if (playerMovement.state == PlayerMovement.MovementState.walking)
+        {
+            if (!recoveryTimerIsRunning)
+            {
+                recoveryTimerIsRunning = true;
+                lastRecovryTime = Time.time;
+            }
+
+            if (Time.time - lastRecovryTime >= 0.5f && playerStamina.GetCurrentStamina < playerStamina.GetMaxStamina)
+            {
+                playerStamina.Recover(staminaRecoveryRate);
+                playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+                recoveryTimerIsRunning = false;
+            }
+        }
+        else
+        {
+            recoveryTimerIsRunning = false; // Reset the recovery timer when not walking
+        }
+
+        if (playerMovement.state == PlayerMovement.MovementState.sprinting)
+        {
+            if (!drainTimerIsRunning)
+            {
+                drainTimerIsRunning = true;
+                lastSprintTime = Time.time;
+            }
+
+            if (Time.time - lastSprintTime >= 0.2f)
+            {
+                if (playerStamina.GetCurrentStamina >= playerMovement.GetSprintConsumptionRate)
+                {
+                    playerStamina.Drain(playerMovement.GetSprintConsumptionRate);
+                    playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+                    drainTimerIsRunning = false;
+                }         
+            }            
+        }
+        else
+        {
+            drainTimerIsRunning = false; // Reset the drain timer when not sprinting
+        }
     }
 
     private void LockOnEnemy(Transform target)
     {
         var direction = target.position - transform.position;
         direction.y = 0;
-        transform.forward = Vector3.Lerp(transform.forward, direction, Time.deltaTime * lockOnSpeed);
-        
-
+        transform.forward = Vector3.Lerp(transform.forward, direction, Time.deltaTime * lockOnSpeed); 
     }
-
     private void Dodge()
     {
         if (!dodging)
         {
             dodging = true;
             animator.SetTrigger("Dodging");
+
+            //Update the player's stamina accordingly
+            playerStamina.Drain(dodgeStaminaConsumption);
+            playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
         }
         StartCoroutine(ResetDodge(timeBetweenDodges));
     }
@@ -200,13 +286,17 @@ public class InputPlayer : MonoBehaviour
         {
             attacking = true;
             animator.SetTrigger("Attacking");
-
             //Pass the appropriate weaponType to the Attack blend tree to intiate the right weaponAnimation
-            animator.SetFloat("WeaponType", (int)equipementManager.GetCurrentEquippedWeapon.item.type);
-            StartCoroutine(EndAttackMotion(equipementManager.GetCurrentEquippedWeapon.item.AttackDuration));
+            animator.SetFloat("WeaponType", (int)equipementManager.GetCurrentEquippedWeapon.type);
+
+            //Update the player's stamina accordingly
+            playerStamina.Drain(equipementManager.GetCurrentEquippedWeapon.staminaConsumption);
+            playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+
+            StartCoroutine(EndAttackMotion(equipementManager.GetCurrentEquippedWeapon.attackDuration));
         }
         playerMovement.attacking = true;
-        StartCoroutine(ResetAttack(equipementManager.GetCurrentEquippedWeapon.item.AttackDuration));
+        StartCoroutine(ResetAttack(equipementManager.GetCurrentEquippedWeapon.attackDuration));
     }
 
     private void Collect()
@@ -247,15 +337,6 @@ public class InputPlayer : MonoBehaviour
         // Lock onto a random enemy from nearby enemies
         var randomIndex = Random.Range(0, CloseEnemies.Length);
 
-        //for (int i = 0; i < CloseEnemies.Length; i++)
-        //{
-        //    if (CloseEnemies[i].transform == currentLockedEnemy)
-        //    {
-        //        Debug.Log("CurrentLockedEnemy index " + i);
-        //    }
-        //}
-        //Debug.Log("randomIndex before check " + randomIndex);
-
         if (CloseEnemies[randomIndex].transform == currentLockedEnemy)
         {
             randomIndex++;
@@ -295,13 +376,13 @@ public class InputPlayer : MonoBehaviour
     //Function inside the attackAnimation
     public void StartAttack()
     {
-        Physics.SphereCast(transform.position + Vector3.up, hitsize, transform.forward,out var hitInfo, equipementManager.GetCurrentEquippedWeapon.item.AttackRange,whatIsEnemy);
+        Physics.SphereCast(transform.position + Vector3.up, hitsize, transform.forward,out var hitInfo, equipementManager.GetCurrentEquippedWeapon.attackRange,whatIsEnemy);
         if (hitInfo.collider != null)
         {
             Enemy enemy = hitInfo.collider.GetComponent<Enemy>();
             if (enemy !=null)
             {
-                enemy.EnemyDamaged(equipementManager.GetCurrentEquippedWeapon.item.damage * damageMultiplier);
+                enemy.EnemyDamaged(equipementManager.GetCurrentEquippedWeapon.damage * damageMultiplier);
                 if (enemy.GetEnemyHealth == 0)
                 {
                     //play deathAnimation
@@ -361,8 +442,12 @@ public class InputPlayer : MonoBehaviour
         // to prevent the player from moving randomly after dodging
         playerMovement.mousePosition = transform.position;
         playerMovement.mouseDirection = dodgeDirection;
-        
+    }
 
+
+    public Stamina GetPlayerStamina
+    {
+        get { return playerStamina; }
     }
 
 

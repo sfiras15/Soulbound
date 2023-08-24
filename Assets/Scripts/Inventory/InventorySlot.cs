@@ -38,7 +38,8 @@ public class InventorySlot : MonoBehaviour
     public void RemoveFromInventory()
     {
         if (item.nbOfInstances > 0) Inventory.instance.RemoveItem(item);
-        else ClearSlot();        
+        else ClearSlot();
+
     }
     public void UseItem()
     {

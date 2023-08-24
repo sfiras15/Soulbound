@@ -1,7 +1,8 @@
 using System.Collections;
 using System.Collections.Generic;
+using Unity.VisualScripting;
 using UnityEngine;
-
+using UnityEngine.PlayerLoop;
 
 [CreateAssetMenu(fileName = "Items/Weapons", menuName = "Items/Weapon", order = 1)]
 public class Weapon_SO : Item
@@ -18,8 +19,10 @@ public class Weapon_SO : Item
     public int damage;
     public int level;
     public WeaponType type;
-    public float AttackRange;
-    public float AttackDuration;
+    public float attackRange;
+    public float attackDuration;
+    public float staminaConsumption;
+    public GameObject prefab;
     public override void Use()
     {
         if (usable)

@@ -11,8 +11,6 @@ public class PlayerManager : MonoBehaviour
 
     public int playerLevel;
 
-    public static event Action<int> onHittingEnemy;
-
     private void Awake()
     {
         if (instance == null)
@@ -27,12 +25,6 @@ public class PlayerManager : MonoBehaviour
         inputPlayer = FindObjectOfType<InputPlayer>();
     }
 
-    public void HitEnemy(int id)
-    {
-        if (onHittingEnemy != null)
-        {
-            onHittingEnemy(id);
-        }
-    }
+
 
 }

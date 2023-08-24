@@ -14,11 +14,14 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   itemName: Spear
   nbOfInstances: 0
-  itemId: 11
-  itemIcon: {fileID: 21300000, guid: 056ee72c467a4e24d87541d42839ca72, type: 3}
+  itemId: 22
+  itemIcon: {fileID: 21300000, guid: b2b2cac2e07af854ea102134c22cb6cc, type: 3}
   usable: 1
+  itemType: 2
   damage: 33
   level: 2
   type: 1
-  AttackRange: 1.75
-  AttackDuration: 1.2
+  attackRange: 1.5
+  attackDuration: 1.05
+  staminaConsumption: 25
+  prefab: {fileID: 2350366144217043346, guid: 8f2b838937bf3ce499fe912cc972a648, type: 3}

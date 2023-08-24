@@ -27,10 +27,41 @@ public class Inventory : MonoBehaviour
     
     [SerializeField] private EquipementManager equipementManager;
 
+    //Event that emits wheather a soul is available in the inventory or not
+    public static event Action<bool> onSoulChange;
+
+    private void OnEnable()
+    {
+        Abilities.onFirstAbilityUsed += RemoveSoul;
+    }
+    private void OnDisable()
+    {
+        Abilities.onFirstAbilityUsed -= RemoveSoul;
+    }
+
     private void Start()
     {
         nextAvailableKey = 0;
         currentInventorySize = 0;
+    }
+    public Item GetItemByType(Item.ItemType itemType)
+    {
+        foreach (var kvp in inventoryDictionary)
+        {
+            if (kvp.Value.itemType == itemType)
+            {
+                return kvp.Value;
+            }
+        }
+
+        return null;
+    }
+
+    //Searchs for a soul item inside the player's inventory and removes it 
+    public void RemoveSoul()
+    {
+        Item soul = GetItemByType(Item.ItemType.Soul);
+        if (soul != null) RemoveItem(soul);
     }
 
     public void UseWeapon(Weapon_SO weapon)
@@ -64,6 +95,9 @@ public class Inventory : MonoBehaviour
             item.nbOfInstances = 1;
             nextAvailableKey++;
             currentInventorySize++;
+
+            // Invoke the event in case we add a soul item for the ability/abilityUI script
+            if (item.itemType == Item.ItemType.Soul) onSoulChange?.Invoke(true);
         }
         else
         {
@@ -87,6 +121,8 @@ public class Inventory : MonoBehaviour
                     item.nbOfInstances = 1;
                     nextAvailableKey++;
                     currentInventorySize++;
+
+                    if (item.itemType == Item.ItemType.Soul) onSoulChange?.Invoke(true);
                 }
                
             }
@@ -115,22 +151,37 @@ public class Inventory : MonoBehaviour
     public void RemoveItem(Item item, int amount = 1)
     {
         bool itemFound = FindItemId(item.itemId);
-
         if (itemFound)
         {
             if (inventoryDictionary[idLocation].nbOfInstances <= amount)
             {
+                // Invoke the event in case we remove a soul item for the ability/abilityUI script
+                if (item.itemType == Item.ItemType.Soul)
+                {
+                    onSoulChange?.Invoke(false);
+                }
                 inventoryDictionary[idLocation].nbOfInstances = 0;
                 inventoryDictionary.Remove(idLocation);
+
                 //Reorganize Dictionary after removing the item from the dictionary
                 ReorganizeKeys();
                 currentInventorySize--;
+
             }
             else
             {
                 inventoryDictionary[idLocation].nbOfInstances -= amount;
                 
             }
+            // Remove the weapon if it's equipped
+            if (item.itemType == Item.ItemType.Weapon)
+            {
+                if (item.itemId == equipementManager.GetCurrentEquippedWeapon.itemId)
+                {
+                    equipementManager.RemoveWeapon(equipementManager.GetCurrentEquippedWeapon.type);
+                }
+            }
+           
             if (onItemChanged != null)
                 onItemChanged.Invoke();
         }

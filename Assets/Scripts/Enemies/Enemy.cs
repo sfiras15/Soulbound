@@ -9,10 +9,9 @@ public class Enemy : MonoBehaviour
     //Added scriptable object field for the enemy when we have diferent types of enemies
 
 
-    [SerializeField] private HealthBar healthBar;
+    [SerializeField] private EnemyHealthBar healthBar;
     private Health enemyHealth;
     // Used to identify the enemy
-    private int id;
     // Start is called before the first frame update
     void Awake()
     {
@@ -37,9 +36,5 @@ public class Enemy : MonoBehaviour
     public int GetEnemyHealth
     {
         get { return enemyHealth.GetCurrentHealth; }
-    }
-    public int GetEnemyId
-    {
-        get { return id; }
     }
 }

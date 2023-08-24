@@ -11,7 +11,7 @@ GameObject:
   - component: {fileID: 368485599934327910}
   - component: {fileID: 3653197916025234371}
   - component: {fileID: 1537472877932140297}
-  - component: {fileID: 4480324323753034441}
+  - component: {fileID: -2129475877586547654}
   m_Layer: 0
   m_Name: Mace2H_Basic
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshRenderer:
   m_SortingLayer: 0
   m_SortingOrder: 0
   m_AdditionalVertexStreams: {fileID: 0}
---- !u!114 &4480324323753034441
+--- !u!114 &-2129475877586547654
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -96,4 +96,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: fd52982a8db3dae4680bf4f260f2319a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  item: {fileID: 11400000, guid: d710946e4be85d244b5bbb78d1f37222, type: 2}
+  prefabID: 12

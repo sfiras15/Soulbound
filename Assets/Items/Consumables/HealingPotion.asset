@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: HealingPotion
   m_EditorClassIdentifier: 
   itemName: HealingPotion
-  nbOfInstances: 1
-  itemId: 33
-  itemIcon: {fileID: 21300000, guid: 2da0889a5261ffa4a96d3195eb22bff8, type: 3}
+  nbOfInstances: 0
+  itemId: 66
+  itemIcon: {fileID: 21300000, guid: 8339dd0ccac10c14e917a1e280284685, type: 3}
   usable: 1
+  itemType: 3
   buffValue: 5
   duration: 0
   type: 0

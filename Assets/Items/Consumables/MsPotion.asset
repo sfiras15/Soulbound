@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: MsPotion
   m_EditorClassIdentifier: 
   itemName: Ms
-  nbOfInstances: 4
-  itemId: 88
-  itemIcon: {fileID: 21300000, guid: 48a2099f4b3e1d742a4f4eb4dc0584a3, type: 3}
+  nbOfInstances: 0
+  itemId: 55
+  itemIcon: {fileID: 21300000, guid: fde3df6f75fb3b64b83b1e1a0876dc4c, type: 3}
   usable: 1
+  itemType: 3
   buffValue: 200
   duration: 4
   type: 2
