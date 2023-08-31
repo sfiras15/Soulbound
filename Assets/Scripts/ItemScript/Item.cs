@@ -1,14 +1,12 @@
 using UnityEngine;
 
 
-
-
 [CreateAssetMenu(fileName = "Items" , menuName = "Items/Item")]
 
 public class Item : ScriptableObject
 {
     public string itemName;
-    public int nbOfInstances = 1;
+    public int nbOfInstances;
     public int itemId;
     public Sprite itemIcon;
     public bool usable;
@@ -23,6 +21,6 @@ public class Item : ScriptableObject
     
     public virtual void Use()
     {
-       
+        Debug.Log("item");
     }
 }

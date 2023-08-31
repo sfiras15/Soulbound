@@ -6,6 +6,8 @@ TagManager:
   tags:
   - CinemachineTarget
   - Enemy
+  - Ennemie
+  - Ground
   layers:
   - Default
   - TransparentFX
@@ -21,7 +23,7 @@ TagManager:
   - Obstacles
   - Enemy
   - Item
-  - 
+  - MiniMap
   - 
   - 
   - 

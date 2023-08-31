@@ -14,10 +14,7 @@ public class EnemyAnimation : MonoBehaviour
     private bool attackState;
     private float enemySpeed;
 
-
-    //Event to update damage the player and update his healthbar
-    public static event Action<float> onPlayerDamaged;
-    private void Awake()
+       private void Awake()
     {
         animator = GetComponent<Animator>();
     }
@@ -59,7 +56,7 @@ public class EnemyAnimation : MonoBehaviour
            if (hitInfo.collider.CompareTag("Player"))
            {
                 //
-                onPlayerDamaged?.Invoke(enemyDamage);
+                PlayerManager.instance.DamagePlayer(enemyDamage);
            }
            
 

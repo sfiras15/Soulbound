@@ -15,7 +15,12 @@ public class AbilityUI : MonoBehaviour
     [SerializeField] private TextMeshProUGUI firstAbilityText;
     private bool soulActive;
 
+    [SerializeField] private Image secondAbilityActiveImage;
+    [SerializeField] private Image secondAbilityActiveImageCD;
+    [SerializeField] private TextMeshProUGUI secondAbilityText;
+
     private KeyCode firstAbilityKey;
+    private KeyCode secondAbilityKey;
     private void OnEnable()
     {
         Inventory.onSoulChange += SoulState;
@@ -27,9 +32,10 @@ public class AbilityUI : MonoBehaviour
         Abilities.onGameStart -= InitializeKeys;
     }
 
-    private void InitializeKeys(KeyCode firstAbilityKey)
+    private void InitializeKeys(KeyCode firstAbilityKey,KeyCode secondAbilityKey)
     {
         this.firstAbilityKey = firstAbilityKey;
+        this.secondAbilityKey = secondAbilityKey;
     }
 
     
@@ -42,7 +48,9 @@ public class AbilityUI : MonoBehaviour
     {
 
         firstAbilityActiveImageCD.fillAmount = 0;
+        secondAbilityActiveImageCD.fillAmount = 0;
         firstAbilityText.text = firstAbilityKey.ToString();
+        secondAbilityText.text = secondAbilityKey.ToString();
     }
 
     // Update is called once per frame
@@ -65,16 +73,19 @@ public class AbilityUI : MonoBehaviour
     }
     
     // Animate the UI
-    public void UpdateCooldown(float cooldownTimer, float cooldownDuration)
+    public void UpdateCooldown(float cooldownTimer, float cooldownDuration, int abilityIndex)
     {
         if (cooldownTimer > 0)
         {
             float fillAmount = cooldownTimer / cooldownDuration;
-            firstAbilityActiveImageCD.fillAmount = fillAmount;
+            if (abilityIndex == 1) firstAbilityActiveImageCD.fillAmount = fillAmount;
+            if (abilityIndex == 2) secondAbilityActiveImageCD.fillAmount = fillAmount;
+
         }
         else
         {
-            firstAbilityActiveImageCD.fillAmount = 0;
+            if (abilityIndex == 1) firstAbilityActiveImageCD.fillAmount = 0;
+            if (abilityIndex == 2) secondAbilityActiveImageCD.fillAmount = 0;
         }
     }
 

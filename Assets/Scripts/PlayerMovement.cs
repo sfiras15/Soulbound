@@ -172,7 +172,7 @@ public class PlayerMovement : MonoBehaviour
                 if (lockedOnEnemy)
                 {
                     Vector3 clickPosition = mousePosition;
-                    Vector3 enemyDirection = (inputPlayer.currentLockedEnemy.position - transform.position).normalized;
+                    Vector3 enemyDirection = (inputPlayer.GetCurrentLockedEnemy.position - transform.position).normalized;
                     Vector3 clickDirection = (clickPosition - transform.position).normalized;
 
                     float dotForward = Vector3.Dot(enemyDirection, clickDirection);
@@ -433,9 +433,9 @@ public class PlayerMovement : MonoBehaviour
     {
         lockedOnEnemy = value;
     }
-    public bool GetLockOnEnemyState
+    public Transform GetLockOnEnemy
     {
-        get { return lockedOnEnemy; }
+        get { return inputPlayer.GetCurrentLockedEnemy; }
     }
 
     public bool GetGroundedState

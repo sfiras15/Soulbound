@@ -3,7 +3,7 @@ using UnityEngine;
 
 
 
-public class InputPlayer : MonoBehaviour
+public class InputPlayer : MonoBehaviour,IDataPersistence
 {
     [Header("References")]
     
@@ -58,7 +58,7 @@ public class InputPlayer : MonoBehaviour
     [SerializeField] private KeyCode lockOnEnemyButton;
     [SerializeField] private float lockOnRadius = 7f;
     [SerializeField] private float lockOnSpeed = 5f;
-    public Transform currentLockedEnemy;
+    private Transform currentLockedEnemy;
     // nearby enemies ready for lock
     [SerializeField] private Collider[] CloseEnemies;
 
@@ -82,6 +82,30 @@ public class InputPlayer : MonoBehaviour
     private bool drainTimerIsRunning = false;
     private float lastSprintTime;
 
+
+    public void SaveData(ref GameData data)
+    {
+        data.playerPosition = this.transform.position;
+        data.playerRotation = this.transform.eulerAngles;
+        data.currentHealth = playerHealth.GetCurrentHealth;
+        data.maxHealth = playerHealth.GetMaxHealth;
+        data.currentStamina = playerStamina.GetCurrentStamina;
+        data.maxStamina = playerStamina.GetMaxStamina;
+
+    }
+
+    public void LoadData(GameData data)
+    {
+        this.transform.position = data.playerPosition;
+        this.transform.eulerAngles = data.playerRotation;
+        playerHealth.SetCurrentHealth = data.currentHealth;
+        playerHealth.SetMaxHealth = data.maxHealth;
+        playerStamina.SetCurrentStamina = data.currentStamina;
+        playerStamina.SetMaxStamina = data.maxStamina;
+        
+    }
+
+
     private void Awake()
     {
         playerHealth = new Health(100);
@@ -92,19 +116,22 @@ public class InputPlayer : MonoBehaviour
     private void OnEnable()
     {
         // Event for checking if the player is using the UI or not so we remove some functionalities
-        InventoryUI.onInventoryUIStateChanged += UpdateInventoryUIState;
+        //InventoryUI.onInventoryUIStateChanged += UpdateInventoryUIState;
 
         // Event for when the player is using a consumable
         Inventory.onConsumableUse += playerState;
 
         // Event for when the player is taking damage
-        EnemyAnimation.onPlayerDamaged += UpdateHealth;
+        PlayerManager.onPlayerDamaged += UpdateHealth;
+
+        Abilities.onSecondAbilityUsed += SecondAbilityActive;
     }
     private void OnDisable()
     {
-        InventoryUI.onInventoryUIStateChanged -= UpdateInventoryUIState;
+        //InventoryUI.onInventoryUIStateChanged -= UpdateInventoryUIState;
         Inventory.onConsumableUse -= playerState;
-        EnemyAnimation.onPlayerDamaged -= UpdateHealth;
+        PlayerManager.onPlayerDamaged -= UpdateHealth;
+        Abilities.onSecondAbilityUsed -= SecondAbilityActive;
     }
 
     private void Start()
@@ -114,7 +141,8 @@ public class InputPlayer : MonoBehaviour
         playerHealthBar.GetHealthBarText.text = playerHealth.GetCurrentHealth.ToString() + "/" + playerHealth.GetMaxHealth.ToString();
         playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
         playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
-
+        PlayerManager.instance.AddXp(0);
+       
 
     }
     private void UpdateHealth(float damage)
@@ -122,6 +150,18 @@ public class InputPlayer : MonoBehaviour
         playerHealth.Damage(damage);
         playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
         //Debug.Log(playerHealth.GetCurrentHealth);
+    }
+    private void SecondAbilityActive(bool state)
+    {
+        if (state)
+        {
+            playerMovement.IncreaseSpeed(2f);
+
+        }
+        else
+        {
+            playerMovement.IncreaseSpeed(1f);
+        }
     }
 
 
@@ -168,7 +208,11 @@ public class InputPlayer : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //
+        //To test xp bar , remove later
+        if (Input.GetKeyDown(KeyCode.T))
+        {
+            PlayerManager.instance.AddXp(70);
+        }
         StaminaManagement();
         if (Input.GetKeyDown(collectKey))
         {
@@ -178,7 +222,7 @@ public class InputPlayer : MonoBehaviour
         {
             Dodge();
         }
-        if (isInventoryActive)
+        if (InventoryUI.isInventoryActive)
         {
             // If the inventory UI is active, return early to prevent the player from attacking,locking onto enemies
             return;
@@ -311,7 +355,7 @@ public class InputPlayer : MonoBehaviour
                 ItemPickup itemToPick = hitInfo.collider.GetComponent<ItemPickup>();
                 if (itemToPick != null)
                 {
-                    if (Vector3.Distance(transform.position, itemToPick.transform.position) <= itemToPick.GetPickUpDistance) Inventory.instance.Add(itemToPick.GetItem);
+                    if (Vector3.Distance(transform.position, itemToPick.transform.position) <= itemToPick.GetPickUpDistance) itemToPick.CollectItem();
                 }
             }
         }
@@ -448,6 +492,12 @@ public class InputPlayer : MonoBehaviour
     public Stamina GetPlayerStamina
     {
         get { return playerStamina; }
+    }
+    public Transform GetCurrentLockedEnemy
+    {
+        get {
+            return currentLockedEnemy;
+        }
     }
 
 

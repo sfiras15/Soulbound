@@ -25,6 +25,8 @@ public class Weapon_SO : Item
     public GameObject prefab;
     public override void Use()
     {
+        Debug.Log("Weapon");
+        Debug.Log(this);
         if (usable)
         {
             Inventory.instance.UseWeapon(this);

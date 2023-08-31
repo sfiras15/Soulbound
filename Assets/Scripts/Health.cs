@@ -21,6 +21,15 @@ public class Health
     {
         get { return maxHealth; }
     }
+
+    public int SetCurrentHealth
+    {
+        set { currentHealth = value; }
+    }
+    public int SetMaxHealth
+    {
+        set { maxHealth = value; }
+    }
     public void Damage(float amount)
     {
         this.currentHealth -= Mathf.RoundToInt(amount);
@@ -31,4 +40,6 @@ public class Health
         this.currentHealth += Mathf.RoundToInt(amount);
         if (this.currentHealth > maxHealth) currentHealth=maxHealth;
     }
+
+
 }

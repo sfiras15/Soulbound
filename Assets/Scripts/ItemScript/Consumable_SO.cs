@@ -17,6 +17,7 @@ public class Consumable_SO : Item
 
     public override void Use()
     {
+        Debug.Log("Potion");
         if (usable)
         {
             if (PlayerManager.instance.playerLevel < level)

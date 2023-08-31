@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Inventory : MonoBehaviour
+public class Inventory : MonoBehaviour,IDataPersistence
 {
     public static Inventory instance;
     [SerializeField] private int inventorySize;
@@ -29,6 +29,50 @@ public class Inventory : MonoBehaviour
 
     //Event that emits wheather a soul is available in the inventory or not
     public static event Action<bool> onSoulChange;
+
+
+    public void SaveData(ref GameData data)
+    {
+        data.inventoryDictionary.Clear();
+        var i = 0;
+        foreach (var kvp in inventoryDictionary)
+        {
+            SerializableItem serializableItem = new SerializableItem();
+            serializableItem.scriptType = kvp.Value.GetType().ToString();
+            serializableItem.serializedData = JsonUtility.ToJson(kvp.Value);
+            serializableItem.nbOfInstances = kvp.Value.nbOfInstances;
+
+            data.inventoryDictionary.Add(i,serializableItem);
+            i++;
+        }
+    }
+    public void LoadData(GameData data)
+    {
+        inventoryDictionary.Clear();
+
+        for (int i = 0; i < data.inventoryDictionary.Count; i++)
+        {
+            Type itemType = Type.GetType(data.inventoryDictionary[i].scriptType);
+            Debug.Log("itemType : " + itemType);
+            Debug.Log("subclass : " + itemType.IsSubclassOf(typeof(Item)));
+            if (itemType != null && itemType.IsSubclassOf(typeof(Item)) || itemType == typeof(Item))
+            {
+                Item originalItem = DeserializeItem(data.inventoryDictionary[i].serializedData, itemType);
+                for (int j = 0; j < data.inventoryDictionary[i].nbOfInstances; j++)
+                {
+                    Add(originalItem);
+                }
+
+
+            }
+        }
+    }
+    private Item DeserializeItem(string jsonData, Type itemType)
+    {
+        Item deserializedItem = (Item)ScriptableObject.CreateInstance(itemType);
+        JsonUtility.FromJsonOverwrite(jsonData, deserializedItem);
+        return deserializedItem;
+    }
 
     private void OnEnable()
     {
@@ -161,8 +205,9 @@ public class Inventory : MonoBehaviour
                     onSoulChange?.Invoke(false);
                 }
                 inventoryDictionary[idLocation].nbOfInstances = 0;
-                inventoryDictionary.Remove(idLocation);
 
+                inventoryDictionary.Remove(idLocation);
+                
                 //Reorganize Dictionary after removing the item from the dictionary
                 ReorganizeKeys();
                 currentInventorySize--;
@@ -174,12 +219,18 @@ public class Inventory : MonoBehaviour
                 
             }
             // Remove the weapon if it's equipped
+            Debug.Log("item.itemType == Item.ItemType.Weapon :" + (item.itemType == Item.ItemType.Weapon));
             if (item.itemType == Item.ItemType.Weapon)
             {
-                if (item.itemId == equipementManager.GetCurrentEquippedWeapon.itemId)
+                Debug.Log("current equipped weapon : " + equipementManager.GetCurrentEquippedWeapon);
+                if (equipementManager.GetCurrentEquippedWeapon != null)
                 {
-                    equipementManager.RemoveWeapon(equipementManager.GetCurrentEquippedWeapon.type);
+                    if (item.itemId == equipementManager.GetCurrentEquippedWeapon.itemId)
+                    {
+                        equipementManager.RemoveWeapon(equipementManager.GetCurrentEquippedWeapon.type);
+                    }
                 }
+                
             }
            
             if (onItemChanged != null)

@@ -35,9 +35,14 @@ public class EquipementManager : MonoBehaviour
 
     public void EquipWeapon(Weapon_SO weapon)
     {
-        //Debug.Log("weapon type : " + weapon.type + " weapon level : " + weapon.level);
+        Debug.Log("weapon type : " + weapon.type + " weapon level : " + weapon.level);
+        Debug.Log("weapon damage : " + weapon.damage);
+        Debug.Log("weapon attackRange : " + weapon.attackRange);
+        Debug.Log("weapon attackDuration : " + weapon.attackDuration);
+        Debug.Log("weapon staminaConsumption : " + weapon.staminaConsumption);
+        Debug.Log("weapon prefab : " + weapon.prefab);
         //Debug.Log(" player level : " + PlayerManager.instance.playerLevel);
-        
+
         if (PlayerManager.instance.playerLevel < weapon.level)
         {
             return; // player low level

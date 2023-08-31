@@ -21,6 +21,15 @@ public class Stamina
     {
         get { return maxStamina; }
     }
+
+    public int SetCurrentStamina
+    {
+        set { currentStamina = value; }
+    }
+    public int SetMaxStamina
+    {
+        set { maxStamina = value; }
+    }
     public void Drain(float amount)
     {
         this.currentStamina -= Mathf.RoundToInt(amount);
@@ -31,4 +40,6 @@ public class Stamina
         this.currentStamina += Mathf.RoundToInt(amount);
         if (this.currentStamina > maxStamina) currentStamina = maxStamina;
     }
+
+    
 }

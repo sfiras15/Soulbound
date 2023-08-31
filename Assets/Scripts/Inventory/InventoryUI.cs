@@ -11,8 +11,10 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private KeyCode inventoryKey;
     [SerializeField] private GameObject inventoryUI;
 
+    public static bool isInventoryActive = false;
+
     // Declare an event for inventory UI state change to prevent player from attacking while using the inventory
-    public static event Action<bool> onInventoryUIStateChanged;
+    //public static event Action<bool> onInventoryUIStateChanged;
     private void OnEnable()
     {
         Inventory.onItemChanged += UpdateUI;
@@ -29,16 +31,18 @@ public class InventoryUI : MonoBehaviour
         {
             if (!inventoryUI.activeSelf)
             {
+                isInventoryActive = true;
                 inventoryUI.SetActive(true);
                 UpdateUI();
             }
             else
             {
+                isInventoryActive = false;
                 inventoryUI.SetActive(false);
             }
 
             // call the event
-            onInventoryUIStateChanged?.Invoke(inventoryUI.activeSelf);
+            //onInventoryUIStateChanged?.Invoke(inventoryUI.activeSelf);
         }
     }
 
