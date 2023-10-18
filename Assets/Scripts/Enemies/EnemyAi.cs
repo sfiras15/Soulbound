@@ -1,7 +1,9 @@
 ﻿using System.Collections;
 using UnityEngine;
 using UnityEngine.AI;
-
+/// <summary>
+/// Handles the different behaviours of the enemy like chasing/patrolling and attacking the player
+/// </summary>
 public class EnemyAi: MonoBehaviour
 {
     private EnemyAnimation enemyAnimation;
@@ -38,7 +40,10 @@ public class EnemyAi: MonoBehaviour
 
     [SerializeField] private float timeToResetAlertness = 5f;
 
-    // in case The enemy gets hit from outside his sightRange
+    [SerializeField] private int chaseNumber = 0;
+    [SerializeField] private int patrolNumber = 0;
+
+    private bool inCombat = false;
 
     private void Awake()
     {
@@ -49,7 +54,7 @@ public class EnemyAi: MonoBehaviour
     
     private void Start()
     {
-        player = PlayerManager.instance.inputPlayer.gameObject.transform;
+        player = PlayerManager.instance.playerTransform;
 
         //variables used for the attackAnimation
         enemyAnimation.EnemyStats(attackDamage, attackSize, attackRange, whatIsPlayer);
@@ -80,14 +85,14 @@ public class EnemyAi: MonoBehaviour
         if (playerInSightRange && !playerInAttackRange && !alreadyAttacked) ChasePlayer();
         if (playerInAttackRange && playerInSightRange) AttackPlayer();
 
-        //
         enemyAnimation.EnemySpeed(agent.velocity.magnitude);
+        
     }
 
 
     private bool FindObstacles(Collider playerCollider)
     {
-        if(playerCollider == null) return false;
+        if (playerCollider == null) return false;
 
         Vector3 playerDirection = (playerCollider.transform.position - transform.position).normalized;
         bool obstacleFound = Physics.Raycast(transform.position, playerDirection, sightRange, whatIsObstacle);
@@ -106,6 +111,17 @@ public class EnemyAi: MonoBehaviour
             lastChasedTime = Time.time;
         }
         ResetAlertness();
+        if (patrolNumber == 0 && !wasChasing && !chasingPlayer)
+        {
+            if (inCombat)
+            {
+                EnemyManager.instance.enemiesInCombat--;
+            }
+            inCombat = false;
+
+            patrolNumber++;
+            chaseNumber = 0;
+        }
         if (agent.remainingDistance <= agent.stoppingDistance) //done with path
         {
             Vector3 point;
@@ -145,9 +161,16 @@ public class EnemyAi: MonoBehaviour
 
     private void ChasePlayer()
     {
-
         chasingPlayer = true;
         wasChasing = false;
+        if (chaseNumber == 0)
+        {
+            inCombat = true;
+            EnemyManager.instance.enemiesInCombat++;
+            chaseNumber++;
+            patrolNumber = 0;
+        }
+        
         agent.SetDestination(player.position);
     }
 

@@ -53,8 +53,8 @@ public class Inventory : MonoBehaviour,IDataPersistence
         for (int i = 0; i < data.inventoryDictionary.Count; i++)
         {
             Type itemType = Type.GetType(data.inventoryDictionary[i].scriptType);
-            Debug.Log("itemType : " + itemType);
-            Debug.Log("subclass : " + itemType.IsSubclassOf(typeof(Item)));
+            //Debug.Log("itemType : " + itemType);
+            //Debug.Log("subclass : " + itemType.IsSubclassOf(typeof(Item)));
             if (itemType != null && itemType.IsSubclassOf(typeof(Item)) || itemType == typeof(Item))
             {
                 Item originalItem = DeserializeItem(data.inventoryDictionary[i].serializedData, itemType);
@@ -130,9 +130,8 @@ public class Inventory : MonoBehaviour,IDataPersistence
         }
        
     }
-    public void Add(Item item)
+    public bool Add(Item item)
     {
-
         if (inventoryDictionary.Count == 0)
         {
             inventoryDictionary.Add(nextAvailableKey, item);
@@ -142,39 +141,51 @@ public class Inventory : MonoBehaviour,IDataPersistence
 
             // Invoke the event in case we add a soul item for the ability/abilityUI script
             if (item.itemType == Item.ItemType.Soul) onSoulChange?.Invoke(true);
+
+            // Item added successfully
+            if (onItemChanged != null)
+                onItemChanged.Invoke();
+            return true;
         }
         else
         {
-            // look for the itemId inside the dictionary , if found store the key's position
+            // Look for the itemId inside the dictionary, if found store the key's position
             bool itemFound = FindItemId(item.itemId);
             if (itemFound)
             {
                 inventoryDictionary[idLocation].nbOfInstances++;
+                // Item added successfully
+                if (onItemChanged != null)
+                    onItemChanged.Invoke();
+                return true;
             }
             else
             {
                 if (currentInventorySize >= inventorySize)
                 {
+                    // Inventory full, item not added
                     Debug.Log("Not enough room.");
-                    return;
+                    return false;
                 }
                 else
                 {
-                    // add later limitation on how much an item can stack
+                    // Add later limitation on how much an item can stack
                     inventoryDictionary.Add(nextAvailableKey, item);
                     item.nbOfInstances = 1;
                     nextAvailableKey++;
                     currentInventorySize++;
 
                     if (item.itemType == Item.ItemType.Soul) onSoulChange?.Invoke(true);
+
+                    // Item added successfully
+                    if (onItemChanged != null)
+                        onItemChanged.Invoke();
+                    return true;
                 }
-               
             }
         }
-
-        if (onItemChanged != null)
-            onItemChanged.Invoke();
     }
+
 
 
     private bool FindItemId(int id)

@@ -9,13 +9,16 @@ public class XpToLevel
     public int level;
     public int xp;
 }
-
+/// <summary>
+/// handles the xp/level of the player
+/// </summary>
 public class PlayerManager : MonoBehaviour,IDataPersistence
 {
 
     public static PlayerManager instance;
 
-    public InputPlayer inputPlayer;
+    // Stores the variable to be used in the enemyAi script which will reduce FindObjectOfType calls overall 
+    public Transform playerTransform;
 
     public int playerLevel;
 
@@ -28,7 +31,6 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
     //Event to update damage the player and update his healthbar
     public static event Action<float> onPlayerDamaged;
     private Dictionary<int, int> xpToLevelDictionary = new Dictionary<int, int>();
-    public static bool secondAbilityActive = false;
 
 
     public void LoadData(GameData data)
@@ -44,19 +46,7 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
         data.nextLevelXp = this.nextLevelXp;
     }
 
-    private void OnEnable()
-    {
-        Abilities.onSecondAbilityUsed += playerState;
-    }
-    private void OnDisable()
-    {
-        Abilities.onSecondAbilityUsed -= playerState;
-    }
-
-    private void playerState(bool state)
-    {
-        secondAbilityActive = state;
-    }
+    
 
     private void Awake()
     {
@@ -69,7 +59,7 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
         {
             Destroy(this);
         }
-        inputPlayer = FindObjectOfType<InputPlayer>();
+        playerTransform = FindObjectOfType<InputPlayer>().gameObject.transform;
         foreach (XpToLevel element in xpToLevelsList)
         {
             xpToLevelDictionary.Add(element.level, element.xp);

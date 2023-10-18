@@ -3,6 +3,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+
+/// <summary>
+/// Handles the Ability casting logic for the player
+/// Updating the UI element for each ability
+/// </summary>
 public class Abilities : MonoBehaviour
 {
     [Header("FirstAbility")]
@@ -11,10 +16,11 @@ public class Abilities : MonoBehaviour
     [SerializeField] private float firstAbilityDuration;
 
     [SerializeField] private float firstAbilityCooldown;
+
+    //to prevent player from spamming the ability mid animation
     [SerializeField] private bool alreadyAttacking = false;
 
-    // variable for better hit detection of the beam ability 
-    [SerializeField] private Animator animator;
+
     [SerializeField] private ParticleSystem beamPS;
     [SerializeField] private float attackDistance = 5f;
     [SerializeField] private float attackDamage = 50f;
@@ -43,10 +49,11 @@ public class Abilities : MonoBehaviour
     //Used for detecting enemies for the first ability
     [SerializeField] private LayerMask whatIsEnemy;
 
+    [SerializeField] private Animator animator;
     [SerializeField] private AbilityUI abilityUI;
 
 
-    // matchs the ability with it's respective cooldown bool
+    // Matchs the ability with it's respective cooldown bool
     private Dictionary<int, bool> abilityCooldowns = new Dictionary<int, bool>();
 
 
@@ -60,7 +67,7 @@ public class Abilities : MonoBehaviour
     public static event Action<bool> onSecondAbilityUsed;
 
 
-    //event called to update the UI text of the abilities
+    //Event called to update the UI text of the abilities
     public static event Action<KeyCode,KeyCode> onGameStart;
 
     private void OnEnable()
@@ -90,7 +97,7 @@ public class Abilities : MonoBehaviour
     {
         if (InventoryUI.isInventoryActive)
         {
-            // If the inventory UI is active, return early to prevent the player from attacking,locking onto enemies
+            // If the inventory UI is active, return early to prevent the player from Casting abilties
             return;
         }
         if (Input.GetKeyDown(firstAbilityKey) && soulActive && !secondAbilityUsed && !playerMovement.jumping)
@@ -107,6 +114,7 @@ public class Abilities : MonoBehaviour
 
     private void FirstAbility()
     {
+        // If the player is not already casting the ability and the ability is not on cooldown
         if (!alreadyAttacking && !abilityCooldowns[1])
         {
             // to prevent the player from casting another spell mid animation
@@ -122,7 +130,7 @@ public class Abilities : MonoBehaviour
     }
     private void SecondAbility()
     {
-        // 
+        // If the player is not already casting the ability and the ability is not on cooldown
         if (!abilityCooldowns[2] && !secondAbilityUsed)
         {
             abilityCooldowns[2] = true;
@@ -170,6 +178,10 @@ public class Abilities : MonoBehaviour
         onSecondAbilityUsed?.Invoke(false);
        
     }
+    private void SecondAbilityCooldown(float cooldownDuration)
+    {
+        StartCoroutine(StartTimer(cooldownDuration, 2));
+    }
     private IEnumerator ResetState(float duration)
     {
         yield return new WaitForSeconds(duration);
@@ -184,10 +196,7 @@ public class Abilities : MonoBehaviour
         onFirstAbilityUsed?.Invoke();
         StartCoroutine(StartTimer(cooldownDuration, 1));
     }
-    private void SecondAbilityCooldown(float cooldownDuration)
-    {
-        StartCoroutine(StartTimer(cooldownDuration, 2));
-    }
+   
 
     //Updates the cooldown of the used ability and it's corresponding UI element
     private IEnumerator StartTimer(float cooldownDuration,int abilityIndex)
@@ -209,13 +218,11 @@ public class Abilities : MonoBehaviour
 
     //Function that is called inside the firstAbility animation
 
-    //Fires a beam to where the player is looking,any enemies on that direction will be hit
+    //Fires a beam in front of the player to where he's looking,any enemies on that direction will be hit
     private void StartBeam()
     {
         
         beamPS.gameObject.SetActive(true);
-
-        // This way the beam can hit multiple Enemies
 
         // Define the size of the overlap box
         Vector3 boxSize = new Vector3(0.5f, 0.5f, attackDistance * 0.5f);

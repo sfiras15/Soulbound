@@ -11,6 +11,7 @@ public class InventoryUI : MonoBehaviour
     [SerializeField] private KeyCode inventoryKey;
     [SerializeField] private GameObject inventoryUI;
 
+
     public static bool isInventoryActive = false;
 
     // Declare an event for inventory UI state change to prevent player from attacking while using the inventory

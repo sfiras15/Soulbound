@@ -1,8 +1,11 @@
+using System;
 using System.Collections;
 using UnityEngine;
 
-
-
+/// <summary>
+/// Handles various action done by the player such as attacking,dodging,locking on targets,interacting with objects
+/// Stores information about health/stamina 
+/// </summary>
 public class InputPlayer : MonoBehaviour,IDataPersistence
 {
     [Header("References")]
@@ -13,6 +16,11 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 
     [Header("Collecting")]
     [SerializeField] private KeyCode collectKey;
+    [SerializeField] private float pickUpDistance = 1.5f;
+
+    // Event for initializing interact key to the UI
+
+    public static event Action<KeyCode> onInitializeUI;
 
     [Header("Attacking")]
     [SerializeField] private KeyCode attackKey;
@@ -83,6 +91,8 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     private float lastSprintTime;
 
 
+
+
     public void SaveData(ref GameData data)
     {
         data.playerPosition = this.transform.position;
@@ -112,12 +122,11 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         playerStamina = new Stamina(100);
         animator = GetComponent<Animator>();
         playerMovement = GetComponent<PlayerMovement>();
+        if (onInitializeUI != null) onInitializeUI?.Invoke(collectKey);
+
     }
     private void OnEnable()
     {
-        // Event for checking if the player is using the UI or not so we remove some functionalities
-        //InventoryUI.onInventoryUIStateChanged += UpdateInventoryUIState;
-
         // Event for when the player is using a consumable
         Inventory.onConsumableUse += playerState;
 
@@ -128,7 +137,6 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     }
     private void OnDisable()
     {
-        //InventoryUI.onInventoryUIStateChanged -= UpdateInventoryUIState;
         Inventory.onConsumableUse -= playerState;
         PlayerManager.onPlayerDamaged -= UpdateHealth;
         Abilities.onSecondAbilityUsed -= SecondAbilityActive;
@@ -136,14 +144,12 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 
     private void Start()
     {
-
         //Update the stamina/healthbar UI
         playerHealthBar.GetHealthBarText.text = playerHealth.GetCurrentHealth.ToString() + "/" + playerHealth.GetMaxHealth.ToString();
         playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
         playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
         PlayerManager.instance.AddXp(0);
        
-
     }
     private void UpdateHealth(float damage)
     {
@@ -153,15 +159,9 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     }
     private void SecondAbilityActive(bool state)
     {
-        if (state)
-        {
-            playerMovement.IncreaseSpeed(2f);
+        if (state) playerMovement.IncreaseSpeed(2f);
+        else playerMovement.IncreaseSpeed(1f);
 
-        }
-        else
-        {
-            playerMovement.IncreaseSpeed(1f);
-        }
     }
 
 
@@ -172,8 +172,6 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
             playerHealth.Heal(potion.buffValue);
             playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
             Debug.Log("healing player");
-            //heal player
-            // add player's healthbar later
         }
         else if (potion.type == Consumable_SO.ConsumableType.MsIncrease)
         {
@@ -241,7 +239,7 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         if (currentLockedEnemy != null)
         {
             LockOnEnemy(currentLockedEnemy);
-            if (Vector3.Distance(transform.position, currentLockedEnemy.position) > lockOffDistance || Input.GetKeyDown(lockOffEnemyButton))
+            if (Vector3.Distance(transform.position, currentLockedEnemy.position) > lockOffDistance || Input.GetKeyDown(lockOffEnemyButton) || !currentLockedEnemy.gameObject.activeSelf)
             {
                 playerMovement.mousePosition = transform.position;
                 playerMovement.mouseDirection = currentLockedEnemy.position - transform.position;
@@ -348,14 +346,12 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         Ray rayPosition = cam.ScreenPointToRay(Input.mousePosition);
         if (Physics.Raycast(rayPosition, out var hitInfo, Mathf.Infinity, whatIsItem))
         {
-
             if (hitInfo.collider != null)
             {
-                // if we found an item to pick and we are withing the pickup range , add it to the inventory
-                ItemPickup itemToPick = hitInfo.collider.GetComponent<ItemPickup>();
-                if (itemToPick != null)
+                // if we found an interactable object, interact with it
+                if (hitInfo.collider.TryGetComponent(out IInteractable interactable))
                 {
-                    if (Vector3.Distance(transform.position, itemToPick.transform.position) <= itemToPick.GetPickUpDistance) itemToPick.CollectItem();
+                    if (Vector3.Distance(transform.position, hitInfo.collider.transform.position) <= pickUpDistance) interactable.Interact();
                 }
             }
         }
@@ -379,7 +375,7 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 
 
         // Lock onto a random enemy from nearby enemies
-        var randomIndex = Random.Range(0, CloseEnemies.Length);
+        var randomIndex = UnityEngine.Random.Range(0, CloseEnemies.Length);
 
         if (CloseEnemies[randomIndex].transform == currentLockedEnemy)
         {
@@ -429,7 +425,6 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
                 enemy.EnemyDamaged(equipementManager.GetCurrentEquippedWeapon.damage * damageMultiplier);
                 if (enemy.GetEnemyHealth == 0)
                 {
-                    //play deathAnimation
                     if (enemy.transform == currentLockedEnemy)
                     {
                         lockOffEnemy();
@@ -500,5 +495,27 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         }
     }
 
+    // Initialize player info for loading the game for the first time
+    public PlayerData playerInfo()
+    {
+        PlayerData playerData = new PlayerData();
+        playerData.playerPosition = transform.position;
+        playerData.playerRotation = transform.eulerAngles;
+        playerData.currentHealth = playerHealth.GetCurrentHealth;
+        playerData.maxHealth = playerHealth.GetMaxHealth;
+        playerData.currentStamina = playerStamina.GetCurrentStamina;
+        playerData.maxStamina = playerStamina.GetMaxStamina;
+        return playerData;
+    }
 
+}
+[System.Serializable]
+public class PlayerData
+{
+    public Vector3 playerPosition;
+    public Vector3 playerRotation;
+    public int currentHealth;
+    public int maxHealth;
+    public int currentStamina;
+    public int maxStamina;
 }

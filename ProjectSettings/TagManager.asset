@@ -23,7 +23,7 @@ TagManager:
   - Obstacles
   - Enemy
   - Item
-  - MiniMap
+  - 
   - 
   - 
   - 
@@ -44,4 +44,7 @@ TagManager:
   m_SortingLayers:
   - name: Default
     uniqueID: 0
+    locked: 0
+  - name: UITEXT
+    uniqueID: 1993090377
     locked: 0

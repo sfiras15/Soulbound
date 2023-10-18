@@ -12,6 +12,7 @@ GameObject:
   - component: {fileID: 33139209218109526}
   - component: {fileID: 23343073852493782}
   - component: {fileID: 65568901422935790}
+  - component: {fileID: 1632464351658051991}
   m_Layer: 0
   m_Name: SM_Prop_Chest_Wood_01
   m_TagString: Untagged
@@ -98,6 +99,26 @@ BoxCollider:
   serializedVersion: 2
   m_Size: {x: 1.1647449, y: 0.468608, z: 0.8101473}
   m_Center: {x: -0.00000032782555, y: 0.234304, z: -0.00000047683716}
+--- !u!114 &1632464351658051991
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1087713860155376}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 76b4775fa9300d9449628be8798efc27, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  chestID: 1
+  items:
+  - {fileID: 11400000, guid: 47b987a96fe036a4c98fc75e3a790fc3, type: 2}
+  - {fileID: 11400000, guid: 47b987a96fe036a4c98fc75e3a790fc3, type: 2}
+  - {fileID: 11400000, guid: 47b987a96fe036a4c98fc75e3a790fc3, type: 2}
+  - {fileID: 11400000, guid: 42ddda411cfbc1c489f2991ff5d5768a, type: 2}
+  - {fileID: 11400000, guid: 42ddda411cfbc1c489f2991ff5d5768a, type: 2}
+  pickUpDistance: 1.5
 --- !u!1 &1296329986752708
 GameObject:
   m_ObjectHideFlags: 0

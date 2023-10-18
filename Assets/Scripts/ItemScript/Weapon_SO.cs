@@ -34,5 +34,11 @@ public class Weapon_SO : Item
         //Equip the weapon 
     }
 
+    // For checking if we have created an Empty weapon_SO by loading  & deserializing Data from gameData
+    public bool HasDefaultValues()
+    {
+        return damage == 0 && level == 0 && type == WeaponType.Axe && attackRange == 0 && attackDuration == 0 && staminaConsumption == 0 && prefab == null;
+    }
+
 
 }

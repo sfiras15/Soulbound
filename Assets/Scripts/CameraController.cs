@@ -1,8 +1,12 @@
 using UnityEngine;
 using Cinemachine;
 
+/// <summary>
+/// Allows the player to rotate the camera and zooms in and out 
+/// </summary>
 public class CameraController : MonoBehaviour
 {
+    [Header("Rotation")]
     [SerializeField] private float rotationSpeed = 0.05f;
 
 
@@ -11,6 +15,7 @@ public class CameraController : MonoBehaviour
     private bool isRotating = false;
     private Vector3 lastMousePosition;
 
+    [Header("Zoom")]
     [SerializeField] private float minZoomDistance = 2.0f;
     [SerializeField] private float maxZoomDistance = 10.0f;
     [SerializeField] private float zoomSpeed = 10.0f;

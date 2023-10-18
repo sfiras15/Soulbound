@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviour,IDataPersistence
     [SerializeField] private int id;
     [SerializeField] private bool killed;
 
+    //public static event Action<bool>;
     public void SaveData(ref GameData data)
     {
         if (data.enemyDictionary.ContainsKey(id))
@@ -63,8 +64,30 @@ public class Enemy : MonoBehaviour,IDataPersistence
             // TO DO Add animation for death
             killed = true;
             this.gameObject.SetActive(false);
+            EnemyManager.instance.enemiesInCombat--;
+            GameObject soul = ObjectPool.instance.GetPooledObject();
+            // The dropped soul's UI wont change, fix it later 
+            soul.transform.position = this.transform.position;
+            soul.SetActive(true);
         }
     }
+
+    public EnemyData EnemyInfo()
+    {
+        EnemyData enemyData = new EnemyData();
+        enemyData.enemyPosition = transform.position;
+        enemyData.enemyRotation = transform.eulerAngles;
+        enemyData.killed = killed;
+
+        return enemyData;
+
+    }
+    public int GetEnemyID
+    {
+        get { return id; }
+
+    }
+
 
     public int GetEnemyHealth
     {

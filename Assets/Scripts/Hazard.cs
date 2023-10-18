@@ -1,5 +1,9 @@
 using UnityEngine;
 
+
+/// <summary>
+/// Damages player over time if the player is in contact with the hazards
+/// </summary>
 public class Hazard : MonoBehaviour
 {
     [SerializeField] private float damage = 3f;
@@ -7,7 +11,21 @@ public class Hazard : MonoBehaviour
     private bool damageTimer = false;
     private float lastDamagedTime;
 
+    private bool secondAbilityActive;
 
+    private void OnEnable()
+    {
+        Abilities.onSecondAbilityUsed += playerState;
+    }
+    private void OnDisable()
+    {
+        Abilities.onSecondAbilityUsed -= playerState;
+    }
+
+    private void playerState(bool state)
+    {
+        secondAbilityActive = state;
+    }
 
     private void OnTriggerStay(Collider other)
     {
@@ -21,7 +39,7 @@ public class Hazard : MonoBehaviour
 
             if (Time.time - lastDamagedTime >= damageTime)
             {
-                if (!PlayerManager.secondAbilityActive) PlayerManager.instance.DamagePlayer(damage);
+                if (!secondAbilityActive) PlayerManager.instance.DamagePlayer(damage);
                 damageTimer = false;
             }
 

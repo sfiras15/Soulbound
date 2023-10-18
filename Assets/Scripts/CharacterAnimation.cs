@@ -2,7 +2,9 @@ using UnityEngine;
 using static PlayerMovement;
 
 
-//Handles the basic movement animation, still need work
+/// <summary>
+/// Handles the basic movement animation, still needs work
+/// </summary>
 
 public class CharacterAnimation : MonoBehaviour
 {

@@ -18,7 +18,7 @@ MonoBehaviour:
   itemIcon: {fileID: 21300000, guid: 8339dd0ccac10c14e917a1e280284685, type: 3}
   usable: 1
   itemType: 3
-  buffValue: 5
+  buffValue: 20
   duration: 0
   type: 0
   level: 2
