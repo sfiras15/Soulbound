@@ -9,5 +9,6 @@ public class ChestData
 {
     public Vector3 chestPosition;
     public Vector3 chestRotation;
+    public List<Item> items;
     //public bool collected;
 }

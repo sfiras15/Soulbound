@@ -27,7 +27,7 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 3899560642158844457}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 1
@@ -100,7 +100,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 1
   item: {fileID: 11400000, guid: 8152e626fa7f17a468fd416591844db0, type: 2}
-  pickUpDistance: 3
   lastSpawnerTime: 0
   despawnTime: 60
 --- !u!65 &3899560642158844455
@@ -123,6 +122,11 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 3899560642158844450}
     m_Modifications:
+    - target: {fileID: 3871076961915502521, guid: c91e86b45dab3304ea2bd79c4fd4dfff,
+        type: 3}
+      propertyPath: m_PresetInfoIsWorld
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 4091903959423993452, guid: c91e86b45dab3304ea2bd79c4fd4dfff,
         type: 3}
       propertyPath: m_Name

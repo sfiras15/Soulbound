@@ -8,13 +8,37 @@ using UnityEngine;
 public class Chest : MonoBehaviour,IDataPersistence, IInteractable
 {
     [SerializeField] private int chestID;
-    [SerializeField] private List<Item> items;
+    //[SerializeField] private List<Item> items;
     private InteractableUI interactableUI;
 
     private GameObject player;
 
-    [SerializeField] private GameObject chestCanvas;
+    //[SerializeField] private GameObject chestCanvas;
     [SerializeField] private float interactDistance = 2f;
+
+    // Array for the prefabs that will initialize inside the chest
+    [SerializeField] private Item[] prefabsInsideTheChest;
+
+    //Array for the items currently inside The chest
+    [SerializeField] private List<Item> itemsInsideTheChest = new List<Item>();
+
+    private ChestUI chestUI;
+    private void OnEnable()
+    {
+        ChestSlot.onItemCollected += ArrangeItemList;
+    }
+
+    private void OnDisable()
+    {
+        ChestSlot.onItemCollected -= ArrangeItemList;
+    }
+
+    public void ArrangeItemList(Item item)
+    {
+        //This solution does not remove the exact item's place if there's duplicates of the same item inside the chest , fix later by changing itemsList to a dictionary that tracks 
+        // the number of instances
+        itemsInsideTheChest.Remove(item);
+    }
     public void SaveData(ref GameData data)
     {
         if (data.chestDictionary.ContainsKey(chestID))
@@ -25,7 +49,9 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
 
         chestData.chestPosition = this.transform.position;
         chestData.chestRotation = this.transform.eulerAngles;
+        chestData.items = itemsInsideTheChest;
         //To add , saves the state of the items inside the chest
+
         data.chestDictionary.Add(chestID, chestData);
     }
     public void LoadData(GameData data)
@@ -35,7 +61,7 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
         {
             this.transform.position = chest.chestPosition;
             this.transform.eulerAngles = chest.chestPosition;
-
+            itemsInsideTheChest = chest.items;
         }
     }
 
@@ -43,11 +69,21 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
     {
         interactableUI = GetComponentInChildren<InteractableUI>();
         player = GameObject.FindGameObjectWithTag("Player");
+
+        chestUI = GetComponentInChildren<ChestUI>();
+        
+        //Initialize the Items inside the chest
+        for (int i = 0; i < prefabsInsideTheChest.Length; i++)
+        {
+            itemsInsideTheChest.Add(prefabsInsideTheChest[i]);
+        }
+        chestUI.UpdateUI(itemsInsideTheChest);
     }
 
     private void Start()
     {
         interactableUI.InitializeItemName("Chest");
+        chestUI.gameObject.SetActive(false);
     }
     private void Update()
     {
@@ -55,6 +91,7 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
         {
             CloseUI();
         }
+        if (chestUI.gameObject.activeSelf) chestUI.UpdateUI(itemsInsideTheChest);
     }
 
     public void ShowUI()
@@ -73,11 +110,11 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
 
     public void OpenUI()
     {
-        chestCanvas.gameObject.SetActive(true);
+        chestUI.gameObject.SetActive(true);
     }
     public void CloseUI()
     {
-        chestCanvas.gameObject.SetActive(false);
+        chestUI.gameObject.SetActive(false);
     }
 
     public ChestData ChestInfo()
@@ -85,7 +122,7 @@ public class Chest : MonoBehaviour,IDataPersistence, IInteractable
         ChestData chestData = new ChestData();
         chestData.chestPosition = transform.position;
         chestData.chestRotation = transform.eulerAngles;
-
+        chestData.items = itemsInsideTheChest;
         return chestData;
 
     }

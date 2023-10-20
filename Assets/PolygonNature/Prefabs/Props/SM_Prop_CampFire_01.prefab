@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 23263163354417112}
   - component: {fileID: 135542769541568652}
   - component: {fileID: 8150509967179830912}
-  m_Layer: 0
+  m_Layer: 13
   m_Name: SM_Prop_CampFire_01
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -111,7 +111,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b42812cb5ca15034bbd93dc8a1e91da1, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  saveButton: 101
 --- !u!1001 &4452869221990634916
 PrefabInstance:
   m_ObjectHideFlags: 0
