@@ -4,7 +4,7 @@ using Unity.VisualScripting;
 using UnityEngine;
 using UnityEngine.PlayerLoop;
 
-[CreateAssetMenu(fileName = "Items/Weapons", menuName = "Items/Weapon", order = 1)]
+[CreateAssetMenu(fileName = "ScriptableObjects/Items/Weapons", menuName = "Items/Weapon", order = 1)]
 public class Weapon_SO : Item
 {
     public enum WeaponType

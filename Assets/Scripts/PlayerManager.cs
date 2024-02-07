@@ -17,9 +17,6 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
 
     public static PlayerManager instance;
 
-    // Stores the variable to be used in the enemyAi script which will reduce FindObjectOfType calls overall 
-    public Transform playerTransform;
-
     public int playerLevel;
 
     private int currentPlayerXp;
@@ -28,8 +25,6 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
     [SerializeField] private Bar xpBar;
 
     [SerializeField] private XpToLevel[] xpToLevelsList;
-    //Event to update damage the player and update his healthbar
-    public static event Action<float> onPlayerDamaged;
     private Dictionary<int, int> xpToLevelDictionary = new Dictionary<int, int>();
 
 
@@ -59,7 +54,6 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
         {
             Destroy(this);
         }
-        playerTransform = FindObjectOfType<InputPlayer>().gameObject.transform;
         foreach (XpToLevel element in xpToLevelsList)
         {
             xpToLevelDictionary.Add(element.level, element.xp);
@@ -85,13 +79,7 @@ public class PlayerManager : MonoBehaviour,IDataPersistence
         }
     }
 
-    public void DamagePlayer(float damage)
-    {
-        if (onPlayerDamaged != null)
-        {
-            onPlayerDamaged.Invoke(damage);
-        }
-    }
+
 
 
 

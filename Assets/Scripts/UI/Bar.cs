@@ -4,8 +4,29 @@ using UnityEngine.UI;
 
 public class Bar : MonoBehaviour
 {
+
+    public enum BarType
+    {
+        Health = 0,
+        Stamina = 1,
+        Xp = 2,
+    }
+    [SerializeField] private Health_SO healthSO;
+    [SerializeField] private Stamina_SO stamina_SO;
+    [SerializeField] private BarType type;
     private Image fillBar;
     private Text barText;
+
+    private void OnEnable()
+    {
+        if (type == BarType.Health) healthSO.onHealthChanged += UpdateBar;
+        if (type == BarType.Stamina) stamina_SO.onStaminaChanged += UpdateBar;
+    }
+    private void OnDisable()
+    {
+        if (type == BarType.Health) healthSO.onHealthChanged -= UpdateBar;
+        if (type == BarType.Stamina) stamina_SO.onStaminaChanged -= UpdateBar;
+    }
     private void Awake()
     {
         fillBar = GetComponent<Image>();

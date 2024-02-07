@@ -54,7 +54,7 @@ public class EnemyAi: MonoBehaviour
     
     private void Start()
     {
-        player = PlayerManager.instance.playerTransform;
+        player = GameObject.FindWithTag("Player").transform;
 
         //variables used for the attackAnimation
         enemyAnimation.EnemyStats(attackDamage, attackSize, attackRange, whatIsPlayer);

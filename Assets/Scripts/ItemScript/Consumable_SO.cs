@@ -1,7 +1,7 @@
 using UnityEngine;
 
 
-[CreateAssetMenu(fileName = "Items/Consumables", menuName = "Items/Consumable", order = 2)]
+[CreateAssetMenu(fileName = "ScriptableObjects/Items/Consumables", menuName = "Items/Consumable", order = 2)]
 public class Consumable_SO : Item
 {
     public enum ConsumableType

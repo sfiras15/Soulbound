@@ -6,7 +6,6 @@ public class EnemyAnimation : MonoBehaviour
 {
     [SerializeField] private EnemyAi enemyAi;
     private Animator animator;
-
     private float enemyDamage;
     private float enemyAttackSize;
     private float enemyRange;
@@ -14,7 +13,7 @@ public class EnemyAnimation : MonoBehaviour
     private bool attackState;
     private float enemySpeed;
 
-       private void Awake()
+    private void Awake()
     {
         animator = GetComponent<Animator>();
     }
@@ -53,13 +52,7 @@ public class EnemyAnimation : MonoBehaviour
         Physics.SphereCast(transform.position + Vector3.up, enemyAttackSize, transform.forward, out var hitInfo, enemyRange, playerLayer);
         if (hitInfo.collider != null)
         {
-           if (hitInfo.collider.CompareTag("Player"))
-           {
-                //
-                PlayerManager.instance.DamagePlayer(enemyDamage);
-           }
-           
-
+           if (hitInfo.collider.gameObject.TryGetComponent(out InputPlayer player)) player.DamagePlayer(enemyDamage);
         }
     }
 

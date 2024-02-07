@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using UnityEngine.SocialPlatforms;
 
 /// <summary>
 /// Handles various action done by the player such as attacking,dodging,locking on targets,interacting with objects
@@ -10,17 +11,15 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 {
     [Header("References")]
     
-    [SerializeField] private Animator animator;
-    [SerializeField] private Camera cam;
+    private Animator animator;
+    private Camera cam;
     private PlayerMovement playerMovement;
 
-    [Header("Collecting")]
-    [SerializeField] private KeyCode collectKey;
-    [SerializeField] private float pickUpDistance = 1.5f;
+    //[Header("Collecting")]
+    //[SerializeField] private KeyCode collectKey;
+    //[SerializeField] private float pickUpDistance = 1.5f;
 
-    // Event for initializing interact key to the UI
-
-    public static event Action<KeyCode> onInitializeUI;
+    
 
     [Header("Attacking")]
     [SerializeField] private KeyCode attackKey;
@@ -75,12 +74,14 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     [SerializeField] private float lockOffDistance = 9f;
 
     [Header("Player's Health")]
-    [SerializeField] private Bar playerHealthBar;
+    //[SerializeField] private Bar playerHealthBar;
+    [SerializeField] private Health_SO healthSO;
     private Health playerHealth;
 
 
     [Header("Player's Stamina")]
-    [SerializeField] private Bar playerStaminaBar;
+    [SerializeField] private Stamina_SO staminaSO;
+    //[SerializeField] private Bar playerStaminaBar;
     private Stamina playerStamina;
 
     //Variables for stamina recovery/drain system
@@ -89,8 +90,6 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     private bool recoveryTimerIsRunning = false;
     private bool drainTimerIsRunning = false;
     private float lastSprintTime;
-
-
 
 
     public void SaveData(ref GameData data)
@@ -120,9 +119,12 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
     {
         playerHealth = new Health(100);
         playerStamina = new Stamina(100);
-        animator = GetComponent<Animator>();
-        playerMovement = GetComponent<PlayerMovement>();
-        if (onInitializeUI != null) onInitializeUI?.Invoke(collectKey);
+
+        if (TryGetComponent(out Animator animator)) this.animator = animator;
+        if (TryGetComponent(out PlayerMovement playerMovement)) this.playerMovement = playerMovement;
+        //animator = GetComponent<Animator>();
+        //playerMovement = GetComponent<PlayerMovement>();
+        cam = Camera.main;
 
     }
     private void OnEnable()
@@ -131,30 +133,36 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         Inventory.onConsumableUse += playerState;
 
         // Event for when the player is taking damage
-        PlayerManager.onPlayerDamaged += UpdateHealth;
+        
+        //PlayerManager.onPlayerDamaged += UpdateHealth;
 
         Abilities.onSecondAbilityUsed += SecondAbilityActive;
     }
     private void OnDisable()
     {
         Inventory.onConsumableUse -= playerState;
-        PlayerManager.onPlayerDamaged -= UpdateHealth;
+        //PlayerManager.onPlayerDamaged -= UpdateHealth;
         Abilities.onSecondAbilityUsed -= SecondAbilityActive;
     }
 
     private void Start()
     {
+        healthSO.MaxHealth = playerHealth.GetMaxHealth;
+        healthSO.CurrentHealth = playerHealth.GetCurrentHealth;
+        staminaSO.MaxStamina = playerStamina.GetMaxStamina;
+        staminaSO.CurrentStamina = playerStamina.GetCurrentStamina;
         //Update the stamina/healthbar UI
-        playerHealthBar.GetHealthBarText.text = playerHealth.GetCurrentHealth.ToString() + "/" + playerHealth.GetMaxHealth.ToString();
-        playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
-        playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+        //playerHealthBar.GetHealthBarText.text = playerHealth.GetCurrentHealth.ToString() + "/" + playerHealth.GetMaxHealth.ToString();
+        //playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
+        //playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
         PlayerManager.instance.AddXp(0);
        
     }
-    private void UpdateHealth(float damage)
+    public void DamagePlayer(float damage)
     {
         playerHealth.Damage(damage);
-        playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
+        healthSO.CurrentHealth = playerHealth.GetCurrentHealth;
+        //playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
         //Debug.Log(playerHealth.GetCurrentHealth);
     }
     private void SecondAbilityActive(bool state)
@@ -170,7 +178,8 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         if (potion.type == Consumable_SO.ConsumableType.Healing)
         {
             playerHealth.Heal(potion.buffValue);
-            playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
+            healthSO.CurrentHealth = playerHealth.GetCurrentHealth;
+            //playerHealthBar.UpdateBar(playerHealth.GetMaxHealth, playerHealth.GetCurrentHealth);
             Debug.Log("healing player");
         }
         else if (potion.type == Consumable_SO.ConsumableType.MsIncrease)
@@ -212,10 +221,10 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
             PlayerManager.instance.AddXp(70);
         }
         StaminaManagement();
-        if (Input.GetKeyDown(collectKey))
-        {
-            Collect();
-        }
+        //if (Input.GetKeyDown(collectKey))
+        //{
+        //    Collect();
+        //}
         if (Input.GetKeyDown(dodgeKey) && playerStamina.GetCurrentStamina >= dodgeStaminaConsumption)
         {
             Dodge();
@@ -264,7 +273,8 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
             if (Time.time - lastRecovryTime >= 0.5f && playerStamina.GetCurrentStamina < playerStamina.GetMaxStamina)
             {
                 playerStamina.Recover(staminaRecoveryRate);
-                playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+                staminaSO.CurrentStamina = playerStamina.GetCurrentStamina;
+                //playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
                 recoveryTimerIsRunning = false;
             }
         }
@@ -286,7 +296,8 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
                 if (playerStamina.GetCurrentStamina >= playerMovement.GetSprintConsumptionRate)
                 {
                     playerStamina.Drain(playerMovement.GetSprintConsumptionRate);
-                    playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+                    staminaSO.CurrentStamina = playerStamina.GetCurrentStamina;
+                    //playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
                     drainTimerIsRunning = false;
                 }         
             }            
@@ -312,7 +323,8 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 
             //Update the player's stamina accordingly
             playerStamina.Drain(dodgeStaminaConsumption);
-            playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+            staminaSO.CurrentStamina = playerStamina.GetCurrentStamina;
+            //playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
         }
         StartCoroutine(ResetDodge(timeBetweenDodges));
     }
@@ -333,28 +345,13 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
 
             //Update the player's stamina accordingly
             playerStamina.Drain(equipementManager.GetCurrentEquippedWeapon.staminaConsumption);
-            playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
+            staminaSO.CurrentStamina = playerStamina.GetCurrentStamina;
+            //playerStaminaBar.UpdateBar(playerStamina.GetMaxStamina, playerStamina.GetCurrentStamina);
 
             StartCoroutine(EndAttackMotion(equipementManager.GetCurrentEquippedWeapon.attackDuration));
         }
         playerMovement.attacking = true;
         StartCoroutine(ResetAttack(equipementManager.GetCurrentEquippedWeapon.attackDuration));
-    }
-
-    private void Collect()
-    {
-        Ray rayPosition = cam.ScreenPointToRay(Input.mousePosition);
-        if (Physics.Raycast(rayPosition, out var hitInfo, Mathf.Infinity, whatIsItem))
-        {
-            if (hitInfo.collider != null)
-            {
-                // if we found an interactable object, interact with it
-                if (hitInfo.collider.TryGetComponent(out IInteractable interactable))
-                {
-                    if (Vector3.Distance(transform.position, hitInfo.collider.transform.position) <= pickUpDistance) interactable.Interact();
-                }
-            }
-        }
     }
 
     private void FindLockTarget()
@@ -434,6 +431,27 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         }
         
     }
+    private void OnDrawGizmos()
+    {
+        Gizmos.DrawWireSphere(transform.position + Vector3.up, 8f);
+
+        RaycastHit hit;
+        if (Physics.SphereCast(transform.position + Vector3.up, hitsize, transform.forward, out var hitInfo, 1.25f, whatIsEnemy))
+        {
+            Gizmos.color = Color.green;
+            Vector3 sphereCastMidpoint = transform.position + Vector3.up + (transform.forward * hitInfo.distance);
+            Gizmos.DrawWireSphere(sphereCastMidpoint, hitsize);
+            Gizmos.DrawSphere(hitInfo.point, 0.1f);
+            Debug.DrawLine(transform.position + Vector3.up, sphereCastMidpoint, Color.green);
+        }
+        else
+        {
+            Gizmos.color = Color.red;
+            Vector3 sphereCastMidpoint = transform.position + (transform.forward * (8f - hitsize));
+            Gizmos.DrawWireSphere(sphereCastMidpoint, hitsize);
+            Debug.DrawLine(transform.position + Vector3.up, sphereCastMidpoint, Color.red);
+        }
+    }
 
     // Function inside the dodge animation
     public void StartDodge()
@@ -507,6 +525,9 @@ public class InputPlayer : MonoBehaviour,IDataPersistence
         playerData.maxStamina = playerStamina.GetMaxStamina;
         return playerData;
     }
+
+
+   
 
 }
 [System.Serializable]

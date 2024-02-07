@@ -15,11 +15,11 @@ public class InteractableUI : MonoBehaviour
 
     private void OnEnable()
     {
-        InputPlayer.onInitializeUI += InitializeIconUI;
+        InteractableDetection.onInitializeUI += InitializeIconUI;
     }
     private void OnDisable()
     {
-        InputPlayer.onInitializeUI -= InitializeIconUI;
+        InteractableDetection.onInitializeUI -= InitializeIconUI;
     }
 
     private void InitializeIconUI(KeyCode interactKey)

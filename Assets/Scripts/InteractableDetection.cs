@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -13,8 +14,19 @@ public class InteractableDetection : MonoBehaviour
     [SerializeField] private LayerMask whatIsItem;
     [SerializeField] private Collider[] interactables;
     [SerializeField] private Collider closestInteractable;
+
+    [SerializeField] private KeyCode interactKey;
     private bool inventoryError;
     private bool saveError;
+    // Event for initializing interact key to the UI
+
+    public static event Action<KeyCode> onInitializeUI;
+
+    private void Awake()
+    {
+        if (onInitializeUI != null) onInitializeUI?.Invoke(interactKey);
+
+    }
     private void OnEnable()
     {
         ItemPickup.onErrorPickUp += InventoryState;
@@ -61,10 +73,13 @@ public class InteractableDetection : MonoBehaviour
                 {
                     if (interactable.TryGetComponent(out IInteractable iInteractable))
                     {
-                        if (interactable == closestInteractable && Vector3.Distance(transform.position, interactable.transform.position) <= interactDistance && !inventoryError && !saveError)
+                        Bounds interactableBounds = interactable.bounds;
+                        Vector3 closestPoint = interactableBounds.ClosestPoint(transform.position);
+                        if (interactable == closestInteractable && Vector3.Distance(transform.position, closestPoint) <= interactDistance && !inventoryError && !saveError)
                         {
                             // Show the UI for the closest interactable
                             iInteractable.ShowUI();
+                            if (Input.GetKeyDown(interactKey)) iInteractable.Interact();
                         }
                         else
                         {

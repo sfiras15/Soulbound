@@ -29,7 +29,7 @@ public class Hazard : MonoBehaviour
 
     private void OnTriggerStay(Collider other)
     {
-        if (other.gameObject.CompareTag("Player"))
+        if (other.gameObject.TryGetComponent(out InputPlayer player))
         {
             if (!damageTimer)
             {
@@ -39,7 +39,7 @@ public class Hazard : MonoBehaviour
 
             if (Time.time - lastDamagedTime >= damageTime)
             {
-                if (!secondAbilityActive) PlayerManager.instance.DamagePlayer(damage);
+                if (!secondAbilityActive) player.DamagePlayer(damage);
                 damageTimer = false;
             }
 
